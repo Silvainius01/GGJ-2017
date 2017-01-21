@@ -115,7 +115,7 @@ public class GraphMaker : MonoBehaviour
     void GeneratePoints()
     {
         bool zfirst = false;
-        Vector2 startPos = (Vector2)transform.position + (-gameBoardScale); // The lower right corner of the board.
+        Vector2 startPos = (Vector2)transform.position + (-gameBoardScale + new Vector2(squareSideSize/2, squareSideSize/2)) ; // The lower right corner of the board.
 
         if (graphPoints == null)
             graphPoints = new List<GraphPoint>();
@@ -223,12 +223,11 @@ public class GraphMaker : MonoBehaviour
             dist = graphPoints[curIndex].connections[cIndex].dist + graphPoints[curIndex].navData.tDist;
             cIndex = graphPoints[curIndex].connections[cIndex].index;
 
-            //if (dist < graphPoints[cIndex].navData.tDist)
+           if (dist < graphPoints[cIndex].navData.tDist)
             graphPoints[cIndex].navData = new GraphPoint.NavData(curIndex, dist);
 
             if (!foundTarget)
                 q.Add(cIndex);
-
 
             graphPoints[curIndex].navData.evaluated = true;
             q.Remove(curIndex);
@@ -265,6 +264,24 @@ public class GraphMaker : MonoBehaviour
             {
                 dist = comp;
                 cIndex = graphPoints.IndexOf(point);
+            }
+        }
+
+        return cIndex;
+    }
+
+    /// <summary>  Returns the closest point to "pos" that is connected to "index"   </summary>
+    int GetClosestConnectedPoint(int index, Vector2 pos)
+    {
+        int cIndex = 0;
+        float dist = 0;
+        foreach(var link in graphPoints[index].connections)
+        {
+            float comp = Mathc.SqrDist(PointPos(link.index), pos);
+            if(comp < dist)
+            {
+                dist = comp;
+                cIndex = link.index;
             }
         }
 
