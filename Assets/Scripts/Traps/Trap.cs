@@ -4,7 +4,7 @@ using System.Collections;
 public abstract class Trap : MonoBehaviour {
 
 	protected KeyCode triggerKey;
-	protected Vector2 gridPosition;
+	protected int gridX, gridY;
 
 	// Use this for initialization
 	void Start () {
@@ -22,9 +22,10 @@ public abstract class Trap : MonoBehaviour {
 		// TODO print text over the position showing the hotkey
 	}
 
-	public void Init(KeyCode key, Vector2 gridPosition){
+	public void Init(KeyCode key, int gridX, int gridY){
 		triggerKey = key;
-		this.gridPosition = gridPosition;
+		this.gridX = gridX;
+		this.gridY = gridY;
 	}
 
 	public abstract void ApplyTriggerEffect ();
