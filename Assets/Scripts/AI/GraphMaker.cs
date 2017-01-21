@@ -261,6 +261,19 @@ public class GraphMaker : MonoBehaviour
             navPath.Add(q[q.Count - (a + 1)]);
     }
 
+    public List<int> GetPath(Vector2 startPos, Vector2 endPos)
+    {
+        List<int> retval = new List<int>();
+
+        NavigateBetween(GetClosestPointTo(startPos), GetClosestPointTo(endPos));
+
+        for (int a = 0; a < navPath.Count; a++)
+            retval.Add(navPath[a]);
+
+        return retval;
+
+    } 
+
     /// <summary> Generate a random path with the closest point to 'pos' being the start.  </summary>
     public List<int> GetRandomPathFrom(Vector2 pos)
     {
