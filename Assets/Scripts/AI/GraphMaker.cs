@@ -3,6 +3,14 @@ using System.Collections.Generic;
 
 public class GraphMaker : MonoBehaviour
 {
+	public enum GRID_TYPE{
+		NONE, 
+		EMPTY_BUILDING,
+		SPECIAL_BUILDING,
+		TRAP,
+		WALL
+	}
+
     [System.Serializable]
     public class GraphPoint
     {
@@ -35,6 +43,8 @@ public class GraphMaker : MonoBehaviour
             }
         }
 
+		public GameObject occupyingObj = null;
+		public GRID_TYPE gridType = GRID_TYPE.NONE;
         public bool isBlocked = false;
         public Vector2 pos = Vector2.zero;
         public NavData navData = null;
@@ -349,4 +359,24 @@ public class GraphMaker : MonoBehaviour
             }
         }
     }
+		
+	public void SetGridType(int x, int y, GameObject obj, GRID_TYPE type){
+		GraphPoint graphPoint = GetGraphPoint (x, y);
+		graphPoint.occupyingObj = obj;
+		graphPoint.gridType = type;
+	}
+
+	public GRID_TYPE GetGridType(int x, int y){
+		return GetGraphPoint (x, y).gridType;
+	}
+
+	// col + rowlength * row
+	public GraphPoint GetGraphPoint(int x, int y){
+		return graphPoints [y + rowLength * x];
+	}
+
+	public bool IsPosInGridPos(Vector2 pos, int gridX, int gridY){
+		return pos.x >= gridX * squareSideSize && pos.x <= gridX * (squareSideSize + 1)
+			&& pos.y >= gridY * squareSideSize && pos.y <= gridY * (squareSideSize + 1);
+	}
 }
