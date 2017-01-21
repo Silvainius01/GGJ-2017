@@ -41,15 +41,14 @@ public class GraphMaker : MonoBehaviour
         public List<ConnectionData> connections = new List<ConnectionData>();
     }
 
-    [Header("Graph Actions")]
-    public bool generate = false;
-    public bool navigate = false;
     [Header("Graph Gen Options")]
+    public bool generate = false;
     public float squareSideSize = 5.0f;
     [Header("Graph Information")]
     public int rowLength = 0, colLength = 0;
     public List<GraphPoint> graphPoints = new List<GraphPoint>();
     [Header("Graph Debug NavData")]
+    public bool navigate = false;
     public int startIndex = 0;
     public int finalIndex = 0;
     public List<int> navPath = new List<int>();
@@ -250,7 +249,7 @@ public class GraphMaker : MonoBehaviour
 
     #endregion
 
-    // Public Graph Data
+    // Misc Public Graph Data
     #region
 
     public int GetClosestPointTo(Vector2 pos)
@@ -287,6 +286,7 @@ public class GraphMaker : MonoBehaviour
 
         return cIndex;
     }
+
 
     #endregion
 
