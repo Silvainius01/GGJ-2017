@@ -39,9 +39,18 @@ public class GraphMaker : MonoBehaviour
         public Vector2 pos = Vector2.zero;
         public NavData navData = null;
         public List<ConnectionData> connections = new List<ConnectionData>();
+
+        public bool IsConnectedTo(int index)
+        {
+            foreach (var link in connections)
+                if (link.index == index)
+                    return true;
+            return false;
+        }
     }
 
     [Header("Graph Gen Options")]
+    public bool scanGraph = false;
     public bool generate = false;
     public float squareSideSize = 5.0f;
     [Header("Graph Information")]
@@ -91,7 +100,7 @@ public class GraphMaker : MonoBehaviour
         foreach (var link in graphPoints[indexB].connections)
             if (link.index == indexA)
             {
-                graphPoints[indexA].connections.Remove(link);
+                graphPoints[indexB].connections.Remove(link);
                 break;
             }
     }
@@ -102,7 +111,7 @@ public class GraphMaker : MonoBehaviour
             point.navData = new GraphPoint.NavData(0, float.MaxValue);
     }
 
-    Vector2 PointPos(int index)
+    public Vector2 PointPos(int index)
     {
         return graphPoints[index].pos;
     }
@@ -111,6 +120,7 @@ public class GraphMaker : MonoBehaviour
 
     // Graph Generation
     #region
+        // index = col + (rowLength * row)
     void GeneratePoints()
     {
         bool zfirst = false;
@@ -144,7 +154,7 @@ public class GraphMaker : MonoBehaviour
             index = r * rowLength;
             for (int c = 0; c < rowLength; c++, index++)
             {
-                if (index < graphPoints.Count - 1)
+                if (index < graphPoints.Count - 1 && Vector2.Distance(PointPos(index), PointPos(index+1)) <= squareSideSize)
                     ConnectPoints(index, index + 1);
                 if (r < colLength - 1)
                     ConnectPoints(index, index + rowLength);
@@ -188,6 +198,7 @@ public class GraphMaker : MonoBehaviour
                 graphPoints[link.index].navData.evaluated = true;
         }
 
+        graphPoints[indexA].navData.evaluated = true;
         dist = graphPoints[indexA].connections[cIndex].dist;
         cIndex = graphPoints[indexA].connections[cIndex].index;
         graphPoints[cIndex].navData = new GraphPoint.NavData(indexA, dist);
@@ -209,6 +220,9 @@ public class GraphMaker : MonoBehaviour
             dist = float.MaxValue;
             foreach (var link in graphPoints[curIndex].connections)
             {
+                if (graphPoints[link.index].navData.evaluated)
+                    continue;
+
                 float comp = Mathc.SqrDist(PointPos(link.index), PointPos(indexB));
                 if (comp < dist)
                 {
@@ -241,11 +255,34 @@ public class GraphMaker : MonoBehaviour
             q.Add(nextIndex);
         }
 
+        if(!graphPoints[q[q.Count-1]].IsConnectedTo(indexB))
+        {
+            //NavigateBetween(indexB, indexA);
+            return;
+        }
+
         navPath.Clear();
         for (int a = 0; a < q.Count; a++)
             navPath.Add(q[q.Count - (a + 1)]);
     }
 
+    /// <summary> Generate a random path with the closest point to 'pos' being the start.  </summary>
+    public List<int> GetRandomPathFrom(Vector2 pos)
+    {
+        int indexA = GetClosestPointTo(pos);
+        int indexB = Random.Range(0, graphPoints.Count - 1);
+        List<int> retval = new List<int>();
+
+        while(graphPoints[indexB].isBlocked)
+            indexB = Random.Range(0, graphPoints.Count - 1); ;
+
+        NavigateBetween(indexA, indexB);
+
+        for (int a = 0; a < navPath.Count; a++)
+            retval.Add(navPath[a]);
+
+        return retval;
+    }
 
     #endregion
 
@@ -258,6 +295,8 @@ public class GraphMaker : MonoBehaviour
         float dist = float.MaxValue;
         foreach (var point in graphPoints)
         {
+            if (point.isBlocked)
+                continue;
             float comp = Mathc.SqrDist(point.pos, pos);
             if (comp < dist)
             {
@@ -276,6 +315,8 @@ public class GraphMaker : MonoBehaviour
         float dist = 0;
         foreach(var link in graphPoints[index].connections)
         {
+            if (graphPoints[link.index].isBlocked)
+                continue;
             float comp = Mathc.SqrDist(PointPos(link.index), pos);
             if(comp < dist)
             {
@@ -287,6 +328,19 @@ public class GraphMaker : MonoBehaviour
         return cIndex;
     }
 
+    public bool ScanGraphForBlocks()
+    {
+        bool foundBlock = false;
+        foreach (var point in graphPoints)
+            if (point.isBlocked)
+            {
+                while (point.connections.Count > 0)
+                    DisconnectPoints(graphPoints.IndexOf(point), point.connections[0].index);
+                foundBlock = true;
+            }
+        ClearPointNavData();
+        return foundBlock;
+    }
 
     #endregion
 
@@ -301,6 +355,13 @@ public class GraphMaker : MonoBehaviour
             generate = false;
         }
 
+        if (scanGraph)
+        {
+            FinalizeConections();
+            ScanGraphForBlocks();
+            scanGraph = false;
+        }
+
         if(navigate)
         {
             NavigateBetween(startIndex, finalIndex);
@@ -311,7 +372,9 @@ public class GraphMaker : MonoBehaviour
         {
             foreach (var point in graphPoints)
             {
-                if (point.navData.evaluated)
+                if (point.isBlocked)
+                    Gizmos.color = Color.black;
+                else if (point.navData.evaluated)
                     Gizmos.color = Color.cyan;
                 else
                     Gizmos.color = Color.red;

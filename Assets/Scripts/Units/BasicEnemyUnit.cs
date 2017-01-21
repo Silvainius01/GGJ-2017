@@ -18,8 +18,8 @@ public class BasicEnemyUnit : Unit {
 	}
 	
 	// Update is called once per frame
-	void Update () {
-	
+	public override void  Update () {
+        base.Update();
 	}
 
 	public override void Attack (Unit unit){
