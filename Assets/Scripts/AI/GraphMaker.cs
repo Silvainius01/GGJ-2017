@@ -297,6 +297,7 @@ public class GraphMaker : MonoBehaviour
             Awake();
             GeneratePoints();
             FinalizeConections();
+            ClearPointNavData();
             generate = false;
         }
 
