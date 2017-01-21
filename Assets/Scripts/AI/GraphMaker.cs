@@ -1,7 +1,11 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class ItemSoUnityWontDeleteFolder : MonoBehaviour {
+public class GraphMaker : MonoBehaviour
+{
+
+
+
 
 	// Use this for initialization
 	void Start () {
