@@ -3,17 +3,20 @@ using System.Collections;
 
 public abstract class Trap : MonoBehaviour {
 
+	protected GraphMaker graph;
 	protected KeyCode triggerKey;
 	protected int gridX, gridY;
+	protected bool activated = false;
 
 	// Use this for initialization
-	void Start () {
-	
+	public virtual void Start () {
+		graph = GameObject.FindGameObjectWithTag ("GameBoard").GetComponent<GraphMaker>();
 	}
 
 	// Update is called once per frame
-	void Update () {
-		if (Input.GetKeyDown (triggerKey)) {
+	public virtual void Update () {
+		if (Input.GetKeyDown (triggerKey) && !activated) {
+			activated = true;
 			ApplyTriggerEffect ();
 		}
 	}

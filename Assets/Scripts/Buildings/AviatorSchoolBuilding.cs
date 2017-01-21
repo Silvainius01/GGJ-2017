@@ -4,6 +4,12 @@ using System.Collections;
 public class AviatorSchoolBuilding : SpecialBuilding {
 
 	private int defaultFlightRange = 2;
+	public int testTargetX = 0, testTargetY = 0;
+
+	void Awake(){
+		GameObject gyro = Instantiate (Resources.Load ("Prefabs/Effects/Gyrocoptor"), transform.position, Quaternion.identity) as GameObject;
+		gyro.GetComponent<Gyrocoptor> ().Init (testTargetX, testTargetY);
+	}
 
 	protected override void ApplySpecialEffect (BasicEnemyUnit unit)
 	{

@@ -7,6 +7,7 @@ public class BasicEnemyUnit : Unit {
 	{
 		FAT,
 		DRUNK,
+		PLAGUE,
 		NONE
 	}
 
@@ -55,11 +56,18 @@ public class BasicEnemyUnit : Unit {
 	}
 
 	public void Slow(float percent){
-
+		AddEffect (EnemyEffect.FAT);
 	}
 
 	public void GetDrunk(float slowPercent, float drunkTime, float enterBuldingPercent){
+		AddEffect (EnemyEffect.DRUNK);
+	}
 
+	public void Plague(float deathTime){
+		AddEffect (EnemyEffect.PLAGUE);
+		// add plague componenet
+		Plague plagueComp = gameObject.AddComponent<Plague>();
+		plagueComp.Init (deathTime);
 	}
 
 	public void AddEffect(EnemyEffect effect){
