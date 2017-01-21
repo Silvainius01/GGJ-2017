@@ -162,11 +162,16 @@ public class GraphMaker : MonoBehaviour
     void NavigateBetween(int indexA, int indexB)
     {
         int nextIndex = indexB;
-        bool foundTarget = false;
         var q = new List<int>();
+        int cIndex = 0;
+        bool foundTarget = false;
+        float dist = float.MaxValue;
 
         startIndex = indexA;
         finalIndex = indexB;
+
+        if (startIndex == finalIndex)
+            return;
 
         ClearPointNavData();
         graphPoints[indexA].navData = new GraphPoint.NavData(indexA, 0.0f);
@@ -174,9 +179,20 @@ public class GraphMaker : MonoBehaviour
 
         foreach (var link in graphPoints[indexA].connections)
         {
-            q.Add(link.index);
-            graphPoints[link.index].navData = new GraphPoint.NavData(indexA, Mathc.SqrDist(PointPos(indexA), PointPos(link.index)));
+            float comp = Mathc.SqrDist(PointPos(link.index), PointPos(indexB));
+            if (comp < dist)
+            {
+                dist = comp;
+                cIndex = graphPoints[indexA].connections.IndexOf(link);
+            }
+            else
+                graphPoints[link.index].navData.evaluated = true;
         }
+
+        dist = graphPoints[indexA].connections[cIndex].dist;
+        cIndex = graphPoints[indexA].connections[cIndex].index;
+        graphPoints[cIndex].navData = new GraphPoint.NavData(indexA, dist);
+        q.Add(cIndex);
 
         while (q.Count > 0)
         {
@@ -184,27 +200,35 @@ public class GraphMaker : MonoBehaviour
 
             if (curIndex == indexB)
                 foundTarget = true;
+            else if (graphPoints[curIndex].navData.evaluated)
+            {
+                q.Remove(curIndex);
+                continue;
+            }
 
+           cIndex = 0;
+            dist = float.MaxValue;
             foreach (var link in graphPoints[curIndex].connections)
             {
-                bool changed = false;
-                float comp = float.MaxValue;
-
-                if (link.index == indexA)
-                    continue;
-
-                comp = link.dist + graphPoints[curIndex].navData.tDist;
-
-                if (comp < graphPoints[link.index].navData.tDist)
+                float comp = Mathc.SqrDist(PointPos(link.index), PointPos(indexB));
+                if (comp < dist)
                 {
-                    changed = true;
-                    graphPoints[link.index].navData = new GraphPoint.NavData(curIndex, comp);
+                    dist = comp;
+                    cIndex = graphPoints[curIndex].connections.IndexOf(link);
                 }
-
-                if (!foundTarget)
-                    if (!graphPoints[link.index].navData.evaluated || changed)
-                        q.Add(link.index);
+                else
+                    graphPoints[link.index].navData.evaluated = true;
             }
+
+            dist = graphPoints[curIndex].connections[cIndex].dist + graphPoints[curIndex].navData.tDist;
+            cIndex = graphPoints[curIndex].connections[cIndex].index;
+
+            //if (dist < graphPoints[cIndex].navData.tDist)
+            graphPoints[cIndex].navData = new GraphPoint.NavData(curIndex, dist);
+
+            if (!foundTarget)
+                q.Add(cIndex);
+
 
             graphPoints[curIndex].navData.evaluated = true;
             q.Remove(curIndex);
@@ -261,7 +285,7 @@ public class GraphMaker : MonoBehaviour
 
         if(navigate)
         {
-           // NavigateBetween(startIndex, finalIndex);
+            NavigateBetween(startIndex, finalIndex);
             navigate = false;
         }
 
