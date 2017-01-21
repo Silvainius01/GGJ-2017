@@ -254,12 +254,7 @@ public class GraphMaker : MonoBehaviour
             nextIndex = graphPoints[nextIndex].navData.pIndex;
             q.Add(nextIndex);
         }
-
-        if(!graphPoints[q[q.Count-1]].IsConnectedTo(indexB))
-        {
-            //NavigateBetween(indexB, indexA);
-            return;
-        }
+        
 
         navPath.Clear();
         for (int a = 0; a < q.Count; a++)
@@ -365,6 +360,10 @@ public class GraphMaker : MonoBehaviour
         if(navigate)
         {
             NavigateBetween(startIndex, finalIndex);
+
+            if (!graphPoints[navPath[navPath.Count - 1]].IsConnectedTo(finalIndex))
+                //NavigateBetween(finalIndex, startIndex);
+
             navigate = false;
         }
 
