@@ -18,11 +18,9 @@ public class BasicEnemyUnit : Unit {
 	void Start () {
 	
 	}
-	
-	// Update is called once per frame
-	void Update () {
-		// check to see if new grid point has been entered if moved
 
+	public override void  Update () {
+        base.Update();
 	}
 
 	public override void Attack (Unit unit){
