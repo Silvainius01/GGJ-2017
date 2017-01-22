@@ -197,7 +197,7 @@ public class GraphMaker : MonoBehaviour
                     if (Random.value <= blockCreationChance)
                     {
                         point.isBlocked = true;
-                        Debug.Log("Connection count: " + point.connections.Count);
+                        //Debug.Log("Connection count: " + point.connections.Count);
                         while (point.connections.Count > 0)
                             DisconnectPoints(graphPoints.IndexOf(point), point.connections[0].index);
                     }
@@ -580,8 +580,8 @@ public class GraphMaker : MonoBehaviour
 
 	public void GetGraphPointXYGridCoords(GraphPoint graphPoint, ref int x, ref int y){
 		int index = graphPoints.IndexOf (graphPoint);
-		x = index % rowLength;
-		y = index / rowLength;
+		y = index % rowLength;
+		x = index / rowLength;
 	}
 
 	public bool IsPosInGridPos(Vector2 pos, int gridX, int gridY){

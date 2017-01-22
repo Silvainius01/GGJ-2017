@@ -16,6 +16,7 @@ public class BasicEnemyUnit : Unit {
 	private GraphMaker.GraphPoint graphPoint = null;
 	private float[] temptationValues = new float[(int)EnemyEffect.NONE];
 	private SpecialBuilding targetBuilding = null;
+	private SpecialBuilding lastBuilding = null;
 
 	// drunk variables
 	[Header("Drunk Variables")]
@@ -36,6 +37,7 @@ public class BasicEnemyUnit : Unit {
 	public override void  Update () {
         base.Update();
 
+
 		// analyze surrounding if changing graph position
 		GraphMaker.GraphPoint newGraphPoint = graph.GetGraphPoint (transform.position);
 		if (graphPoint.pos != newGraphPoint.pos) {
@@ -43,6 +45,7 @@ public class BasicEnemyUnit : Unit {
 			AnalyzeNewSurroundings ();
 		}
 
+		/*
 		// update being drunk
 		if (drunkTimer.Update (Time.deltaTime)) {
 			RemoveDrunk ();
@@ -57,6 +60,11 @@ public class BasicEnemyUnit : Unit {
 		} else {
 			// try to attack the current target
 		}
+		*/
+	}
+
+	private void MoveToQueen(){
+		MoveAlongShortestPath (graph.PointPos(graph.finalIndex));
 	}
 
 	protected MilitiaController GetTarget (){
@@ -91,18 +99,28 @@ public class BasicEnemyUnit : Unit {
 		// if moved into a new grid position, Analyze new surroundings for places to go
 		int x = 0, y = 0;
 		graph.GetGraphPointXYGridCoords (graphPoint, ref x, ref y);
+		//Debug.Log ("current pos: " + x + ", " + y);
 
 		// look at surrounding building to determine want to enter any
 		SpecialBuilding buildingToEnter = null;
 		float bestEnterValue = 0.0f;
-		for (int i = x - 1; i < x + 1; ++x) {
-			for (int j = y - 1; j < y + 1; ++y) {
-				if (x < 0 || x >= graph.colLength || y < 0 || y >= graph.rowLength)
+		for (int i = x - 1; i <= x + 1; ++i) {
+			for (int j = y - 1; j <= y + 1; ++j) {
+				//Debug.Log ("checking x: " + i + " y: " + j);
+				if (i < 0 || i >= graph.colLength || j < 0 || j >= graph.rowLength || i == x || j == y) {
+					//Debug.Log ("skipping: " + i + " " + j);
 					continue;
-				if (graph.GetGridType (x, y) == GraphMaker.GRID_TYPE.SPECIAL_BUILDING) {
-					SpecialBuilding building = graph.GetGraphPoint (x, y).occupyingObj.GetComponent<SpecialBuilding>();
+				}
+				//Debug.Log ("type checked: " + graph.GetGridType (i, j));
+				if (graph.GetGridType (i, j) == GraphMaker.GRID_TYPE.SPECIAL_BUILDING) {
+					SpecialBuilding building = graph.GetGraphPoint (i, j).occupyingObj.GetComponent<SpecialBuilding>();
+
+					// skip if just in that building
+					if(building == lastBuilding) continue;
+
 					float want = WantsToEnterBuilding (building);
-					if (want > bestEnterValue) {
+					Debug.Log ("checking build: " + building.buildingType + " want: " + want);
+					if (want != 0.0f && want > bestEnterValue) {
 						want = bestEnterValue;
 						buildingToEnter = building;
 					}
@@ -111,6 +129,7 @@ public class BasicEnemyUnit : Unit {
 		}
 
 		if (buildingToEnter != null) {
+			Debug.Log ("entering building");
 			// move towards the target building
 			targetBuilding = buildingToEnter;
 			Move (targetBuilding.transform.position);
@@ -123,11 +142,14 @@ public class BasicEnemyUnit : Unit {
 	}
 
 	public void BuildingExited(){
-
+		lastBuilding = targetBuilding;
+		targetBuilding = null;
+		MoveToQueen ();
+		Debug.Log ("exited building");
 	}
 
 	public float WantsToEnterBuilding(SpecialBuilding building){
-		float randomWant = Mathf.Max(1.0f, UnityEngine.Random.Range (0.0f, 1.0f) + bonusBuildingWant);
+		float randomWant = Mathf.Min(1.0f, UnityEngine.Random.Range (0.0f, 1.0f) + bonusBuildingWant);
 		if (randomWant > temptationValues [(int)building.buildingType]) {
 			// determine the strength of the want
 			return (randomWant - temptationValues [(int)building.buildingType]) / (1.0f - temptationValues [(int)building.buildingType]);
@@ -140,7 +162,7 @@ public class BasicEnemyUnit : Unit {
 	void OnTriggerEnter2D(Collider2D other){
 		// check to see if collided with target building
 		if (targetBuilding != null && other.GetComponent<SpecialBuilding> () == targetBuilding) {
-
+			EnterBuilding (targetBuilding);
 		}
 	}
 
@@ -199,5 +221,9 @@ public class BasicEnemyUnit : Unit {
 
 	public bool HasEffectsActive(BitSet effects){
 		return effects.IsSubsetOf (activeEffects);
+	}
+
+	protected virtual void OnDestroy(){
+		GameManager.Instance.LivingEnemyWasDestroyed (this);
 	}
 }

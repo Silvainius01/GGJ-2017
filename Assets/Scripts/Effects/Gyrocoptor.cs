@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using System.Collections;
+using System.Collections.Generic;
 
 public class Gyrocoptor : MonoBehaviour {
 
@@ -15,7 +15,6 @@ public class Gyrocoptor : MonoBehaviour {
 	private GYRO_STATE state = GYRO_STATE.TAKING_OFF;
 	public float flightHeight = 10.0f;
 	public float speed = 10.0f;
-	public float acceleration = 5.0f;
 	public float diveDistance = 2.0f;
 	public float liftSpeed = 2.0f;
 	public float crashRadius = 5.0f;
@@ -31,6 +30,8 @@ public class Gyrocoptor : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+		Debug.Log ("gyro state: " + state);
+
 		switch(state){
 		case GYRO_STATE.TAKING_OFF:
 			if (transform.position.z <= -flightHeight) {
@@ -55,17 +56,18 @@ public class Gyrocoptor : MonoBehaviour {
 			float t = crashTimer.timePassed / crashTimer.timerStart;
 
 			if (t < 1.0f)
-				Vector3.Lerp (startCrashPos, crashPos, Mathf.Clamp (t, 0.0f, 1.0f));
+				transform.position = Vector3.Lerp (startCrashPos, crashPos, Mathf.Clamp (t, 0.0f, 1.0f));
 			else {
 				// if close enough, explode
 				Destroy(gameObject);
 
 				// does aoe damage to enemies
-				GameObject[] enemies = GameObject.FindGameObjectsWithTag("BasicEnemy");
-				foreach (GameObject enemy in enemies) {
+				List<BasicEnemyUnit> enemies = GameManager.Instance.GetLivingEnemies();
+				foreach (BasicEnemyUnit enemy in enemies) {
 					Vector2 toEnemy = enemy.transform.position - transform.position;
 					if (toEnemy.sqrMagnitude <= crashRadius * crashRadius) {
-						Destroy (enemy);
+						Debug.Log ("destroying with coptor");
+						Destroy (enemy.gameObject);
 					}
 				}
 			}
@@ -80,13 +82,7 @@ public class Gyrocoptor : MonoBehaviour {
 		case GYRO_STATE.FLYING:
 			if (GetDistFromTarget () > diveDistance) {
 				// change direction towards target
-				rbody.velocity = GetVecToTarget ().normalized * rbody.velocity.magnitude;
-				// accelerate
-				if (rbody.velocity.magnitude < speed) {
-					rbody.AddForce (rbody.velocity.normalized * acceleration * Time.fixedTime);
-				} else {
-					rbody.velocity = rbody.velocity.normalized * speed;
-				}
+				rbody.velocity = GetVecToTarget ().normalized * speed;
 			}
 			break;
 		case GYRO_STATE.CRASHING:

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 public class Unit : MonoBehaviour {
 
-	private Rigidbody rbody;
+	private Rigidbody2D rbody;
 
     [Header("Navigation Options")]
     protected GraphMaker graph;
@@ -35,7 +35,7 @@ public class Unit : MonoBehaviour {
 	void Awake ()
     {
         graph = GameObject.FindGameObjectWithTag("GameBoard").GetComponent<GraphMaker>();
-		rbody = GetComponent<Rigidbody> ();
+		rbody = GetComponent<Rigidbody2D> ();
 		movePos = transform.position;
 		speed = initialSpeed;
 	}
@@ -66,7 +66,7 @@ public class Unit : MonoBehaviour {
 			{
 				if (navigateGraph)
 					path.RemoveAt(0);
-				rbody.velocity = Vector3.zero;
+				rbody.velocity = Vector2.zero;
 			}
 			else
 			{
@@ -131,6 +131,7 @@ public class Unit : MonoBehaviour {
 	}
 
 	protected virtual void MoveAlongShortestPath(Vector2 pos){
+		path.Clear ();
 		path = graph.GetPath (transform.position, pos);
 		navigateGraph = true;
 	}

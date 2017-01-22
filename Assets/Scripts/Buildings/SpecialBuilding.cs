@@ -20,14 +20,15 @@ public class SpecialBuilding : Building {
 	}
 	
 	// Update is called once per frame
-	public virtual void Update () {
+	public override void Update () {
 		List<BasicEnemyUnit> removal = new List<BasicEnemyUnit> ();
 		foreach (KeyValuePair<BasicEnemyUnit, Timer> occupant in occupantTimers) {
 			if (occupant.Value.Update (Time.deltaTime)) {
 				// if timer went off, apply special function and call exit
-				occupant.Key.enabled = true;
-				ApplySpecialEffect (occupant.Key);
-				occupant.Key.BuildingExited ();
+				occupant.Key.gameObject.SetActive(true);
+				if (!ApplySpecialEffect (occupant.Key)) {
+					occupant.Key.BuildingExited ();
+				}
 				removal.Add (occupant.Key);
 			}
 		}
@@ -42,11 +43,12 @@ public class SpecialBuilding : Building {
 		Timer timer = null;
 		if (!occupantTimers.TryGetValue (unit, out timer)) {
 			timer = new Timer (occupancyTime, true);
+			occupantTimers.Add (unit, timer);
 		}
 		timer.Activate (occupancyTime);
 
 		// disable the unit
-		unit.enabled = false;
+		unit.gameObject.SetActive(false);
 	}
 
 	protected virtual bool ApplySpecialEffect(BasicEnemyUnit unit){

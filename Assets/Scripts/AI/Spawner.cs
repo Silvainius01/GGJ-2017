@@ -3,6 +3,18 @@ using System.Collections.Generic;
 
 public class Spawner : MonoBehaviour
 {
+
+	[System.Serializable]
+	public struct SpawnWave{
+		public int numEnemies;
+		public float spawnRate;
+
+		public SpawnWave(int num, float rate){
+			numEnemies = num;
+			spawnRate = rate;
+		}
+	}
+
     [Header("Debug Stuff")]
     public int addEnemiesToQ = 0;
     [Header("Wave Options")]
@@ -29,7 +41,14 @@ public class Spawner : MonoBehaviour
         spawnInterval = new Timer(1.0f, true);
     }
 
-	public GameObject Update(float dt){
+	public void InitWave(SpawnWave waveData){
+		spawnQ.Clear ();
+		spawnInterval = new Timer (waveData.spawnRate, true);
+		AddToQ(Resources.Load("Prefabs/BasicEnemy") as GameObject, waveData.numEnemies);
+		addEnemiesToQ = 0;
+	}
+
+	public BasicEnemyUnit UpdateSpawns(float dt){
 		if(addEnemiesToQ > 0)
 		{
 			AddToQ(Resources.Load("Prefabs/BasicEnemy") as GameObject, addEnemiesToQ);
@@ -39,7 +58,7 @@ public class Spawner : MonoBehaviour
 		spawnInterval.Update(Time.deltaTime);
 		if(spawnInterval.hasFired && spawnQ.Count > 0)
 		{
-			Unit newUnit = Instantiate(spawnQ[0].GetComponent<BasicEnemyUnit>());
+			BasicEnemyUnit newUnit = Instantiate(spawnQ[0].GetComponent<BasicEnemyUnit>());
 
 			spawnQ.RemoveAt(0);
 			newUnit.navigateGraph = true;
@@ -47,6 +66,8 @@ public class Spawner : MonoBehaviour
 			newUnit.transform.position = graph.PointPos(startIndex);
 			newUnit.path = graph.GetPath(graph.PointPos(startIndex), graph.PointPos(finalIndex));
 			spawnInterval.Activate();
+
+			return newUnit;
 		}
 		return null;
 	}
