@@ -7,6 +7,7 @@ public static class Mathc
     public const float HALF_PI = Mathf.PI / 2;
     public const float QUARTER_PI = Mathf.PI / 4;
     public const float EIGTH_PI = Mathf.PI / 8;
+    public const float TWO_PI = Mathf.PI * 2;
 
     public static float fMod(float a, float b)
     {

@@ -366,7 +366,14 @@ public class GraphMaker : MonoBehaviour
 		graphPoint.gridType = type;
 	}
 
-	public GRID_TYPE GetGridType(int x, int y){
+    public void SetGridType(int index, GameObject obj, GRID_TYPE type)
+    {
+        GraphPoint graphPoint = graphPoints[index];
+        graphPoint.occupyingObj = obj;
+        graphPoint.gridType = type;
+    }
+
+    public GRID_TYPE GetGridType(int x, int y){
 		return GetGraphPoint (x, y).gridType;
 	}
 
