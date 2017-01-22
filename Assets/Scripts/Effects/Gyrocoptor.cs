@@ -31,8 +31,11 @@ public class Gyrocoptor : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+                //Debug.Log("Lift off" + rbody.velocity);
+                //Debug.Log("Traveling" + rbody.velocity);
 		switch(state){
 		case GYRO_STATE.TAKING_OFF:
+                Debug.Log("Taking off");
 			if (transform.position.z <= flightHeight) {
 				transform.position = new Vector3(transform.position.x, transform.position.y, -flightHeight);
 				rbody.velocity = new Vector3 (rbody.velocity.x, rbody.velocity.y, 0.0f);
@@ -40,15 +43,17 @@ public class Gyrocoptor : MonoBehaviour {
 			}
 			break;
 		case GYRO_STATE.FLYING:
-			if (GetDistFromTarget () <= diveDistance) {
+                Debug.Log("Flying");
+                if (GetDistFromTarget () <= diveDistance) {
 				rbody.velocity = new Vector2 (0.0f, 0.0f);
 				startCrashPos = transform.position;
 				crashTimer.Activate ();
 				state = GYRO_STATE.CRASHING;
-			}
+                }
 			break;
 		case GYRO_STATE.CRASHING:
-			crashTimer.Update (Time.deltaTime);
+                Debug.Log("Crashing");
+                crashTimer.Update (Time.deltaTime);
 
 			// lerp towards target
 			Vector3 crashPos = target != null ? target.transform.position : (Vector3) graph.GetGraphPoint(gridX, gridY).pos;
