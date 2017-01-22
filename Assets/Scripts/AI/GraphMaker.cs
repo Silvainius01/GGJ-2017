@@ -49,10 +49,12 @@ public class GraphMaker : MonoBehaviour
         }
     }
 
-    [Header("Graph Gen Options")]
     public bool scanGraph = false;
-    public bool generate = false;
+    [Header("Graph Gen Options")]
     public float squareSideSize = 5.0f;
+    public bool generateInitial = false;
+    public float blockCreationChance = 0.2f;
+    public bool generateBlocks = false;
     [Header("Graph Information")]
     public int rowLength = 0, colLength = 0;
     public List<GraphPoint> graphPoints = new List<GraphPoint>();
@@ -163,12 +165,23 @@ public class GraphMaker : MonoBehaviour
                 DisconnectPoints(index, index - 1);
         }
     }
+
+    void GenerateRandomBlocks()
+    {
+        foreach(var point in graphPoints)
+            if(graphPoints.IndexOf(point) != 0 && graphPoints.IndexOf(point)!=99)
+            {
+                float chance = Random.value;
+                if (Random.value <= blockCreationChance)
+                    point.isBlocked = true;
+            }
+    }
     #endregion
 
     // Graph Navigation.
     #region
 
-    void NavigateBetween(int indexA, int indexB)
+    void NavigateBetweenAstar(int indexA, int indexB)
     {
         int nextIndex = indexB;
         var q = new List<int>();
@@ -261,11 +274,78 @@ public class GraphMaker : MonoBehaviour
             navPath.Add(q[q.Count - (a + 1)]);
     }
 
+    void NavigateBetweenDijk(int indexA, int indexB)
+    {
+        int nextIndex = indexB;
+        var q = new List<int>();
+        bool foundTarget = false;
+        float dist = float.MaxValue;
+
+        startIndex = indexA;
+        finalIndex = indexB;
+
+        if (startIndex == finalIndex)
+            return;
+
+        ClearPointNavData();
+        graphPoints[indexA].navData = new GraphPoint.NavData(indexA, 0.0f);
+        graphPoints[indexA].navData.evaluated = true;
+        graphPoints[indexB].navData.wasTarget = true;
+
+        foreach (var link in graphPoints[indexA].connections)
+        {
+            graphPoints[link.index].navData = new GraphPoint.NavData(indexA, link.dist);
+            q.Add(link.index);
+        }
+
+        while (q.Count > 0)
+        {
+            int curIndex = q[0];
+
+            if (curIndex == indexB)
+                foundTarget = true;
+            else if (graphPoints[curIndex].navData.evaluated)
+            {
+                q.Remove(curIndex);
+                continue;
+            }
+            
+            dist = float.MaxValue;
+            foreach (var link in graphPoints[curIndex].connections)
+            {
+                dist = link.dist + graphPoints[curIndex].navData.tDist;
+                else if (dist < graphPoints[link.index].navData.tDist)
+                    graphPoints[link.index].navData = new GraphPoint.NavData(curIndex, dist);
+                
+
+                if (!foundTarget && !graphPoints[link.index].navData.evaluated)
+                    q.Add(link.index);
+            }
+
+            graphPoints[curIndex].navData.evaluated = true;
+            q.Remove(curIndex);
+        }
+
+        // Record path.
+        q.Clear();
+        q.Add(nextIndex);
+        for (int a = 0; a < graphPoints.Count && nextIndex != indexA; a++)
+        {
+            nextIndex = graphPoints[nextIndex].navData.pIndex;
+            q.Add(nextIndex);
+        }
+
+
+        navPath.Clear();
+        for (int a = 0; a < q.Count; a++)
+            navPath.Add(q[q.Count - (a + 1)]);
+    }
+
     public List<int> GetPath(Vector2 startPos, Vector2 endPos)
     {
         List<int> retval = new List<int>();
 
-        NavigateBetween(GetClosestPointTo(startPos), GetClosestPointTo(endPos));
+        NavigateBetweenDijk(GetClosestPointTo(startPos), GetClosestPointTo(endPos));
 
         for (int a = 0; a < navPath.Count; a++)
             retval.Add(navPath[a]);
@@ -284,7 +364,7 @@ public class GraphMaker : MonoBehaviour
         while(graphPoints[indexB].isBlocked)
             indexB = Random.Range(0, graphPoints.Count - 1); ;
 
-        NavigateBetween(indexA, indexB);
+        NavigateBetweenAstar(indexA, indexB);
 
         for (int a = 0; a < navPath.Count; a++)
             retval.Add(navPath[a]);
@@ -354,25 +434,33 @@ public class GraphMaker : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        if (generate)
+        if (generateInitial)
         {
             Awake();
             GeneratePoints();
             FinalizeConections();
             ClearPointNavData();
-            generate = false;
+            generateInitial = false;
+        }
+
+        if(generateBlocks)
+        {
+            scanGraph = true;
+            generateBlocks = false;
+            GenerateRandomBlocks();
         }
 
         if (scanGraph)
         {
             FinalizeConections();
             ScanGraphForBlocks();
+            navPath.Clear();
             scanGraph = false;
         }
 
         if(navigate)
         {
-            NavigateBetween(startIndex, finalIndex);
+            NavigateBetweenDijk(startIndex, finalIndex);
 
             if (!graphPoints[navPath[navPath.Count - 1]].IsConnectedTo(finalIndex))
                 //NavigateBetween(finalIndex, startIndex);
