@@ -8,7 +8,6 @@ public class AssignmentUiManager : MonoBehaviour {
 
     public List<GameObject> BuildingButtons = new List<GameObject>();
     public List<GameObject> TrapButtons = new List<GameObject>();
-    public GraphMaker My_GraphMaker;
     public GameObject FocusGroup;
     public GameObject CanvasToToggleOff;
     public float UiRadius = 1f;
@@ -31,13 +30,13 @@ public class AssignmentUiManager : MonoBehaviour {
     {
 		// if creating a building, remove empty building obj
 		if (gridType == GraphMaker.GRID_TYPE.SPECIAL_BUILDING) {
-			GraphMaker.GraphPoint oldGraphPoint = My_GraphMaker.GetGraphPoint (curTile.pos);
+			GraphMaker.GraphPoint oldGraphPoint = GraphMaker.Instance.GetGraphPoint (curTile.pos);
 			Destroy (oldGraphPoint.occupyingObj);
 		}
 			
 		// create obj and place it on the grid
 		GameObject _spawn = Instantiate (_construction, curTile.pos, Quaternion.identity) as GameObject;
-        My_GraphMaker.SetGridType(My_GraphMaker.GetClosestPointTo(curTile.pos), _spawn, gridType);
+        GraphMaker.Instance.SetGridType(GraphMaker.Instance.GetClosestPointTo(curTile.pos), _spawn, gridType);
 
         foreach(GameObject _obj in curSpawned)
         {

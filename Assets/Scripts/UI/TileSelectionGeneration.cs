@@ -6,16 +6,15 @@ public class TileSelectionGeneration : MonoBehaviour {
 
     public GameObject Canvas;
     public GameObject TileUiPrefab;
-    public GraphMaker My_GraphMaker;
 
     private List<Transform> UiOptions;
     private const float uiDistanceFromScene = -3;
 
 	// Use this for initialization
 	void Start () {
-	    for(int i = 0; i < My_GraphMaker.graphPoints.Count; i++)
+	    for(int i = 0; i < GraphMaker.Instance.graphPoints.Count; i++)
         {
-            SpawnUiElement(My_GraphMaker.graphPoints[i]);
+            SpawnUiElement(GraphMaker.Instance.graphPoints[i]);
         }
 	}
 

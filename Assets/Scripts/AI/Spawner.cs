@@ -35,7 +35,7 @@ public class Spawner : MonoBehaviour
         spawnInterval = new Timer(1.0f, true);
     }
 
-	public GameObject Update(float dt){
+	public GameObject UpdateQ(float dt){
 		if(addEnemiesToQ > 0)
 		{
 			AddToQ(Resources.Load("Prefabs/BasicEnemy") as GameObject, addEnemiesToQ);
