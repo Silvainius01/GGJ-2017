@@ -248,7 +248,7 @@ public class GraphMaker : MonoBehaviour
         {
             GraphPoint.ConnectionData t = graphPoints[indexA].connections[index];
             graphPoints[t.index].navData = new GraphPoint.NavData(indexA, t.dist);
-            q.Add(index);
+            q.Add(t.index);
         }
 
         while (q.Count > 0)

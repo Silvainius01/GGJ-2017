@@ -9,6 +9,8 @@ public class PidePiper : Trap {
 	public override void ApplyTriggerEffect (){
 		// spawn some rats and plague in surounding 3 by 3 grid
 
+
+
 		// get all enemy units
 		GameObject[] enemies = GameObject.FindGameObjectsWithTag("BasicEnemy");
 		foreach (GameObject enemy in enemies) {

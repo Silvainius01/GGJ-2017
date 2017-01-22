@@ -26,7 +26,7 @@ public class BasicEnemyUnit : Unit {
 
 	// Use this for initialization
 	void Start () {
-		graphPoint = graph.GetGraphPoint (transform.position);
+		graphPoint = GraphMaker.Instance.GetGraphPoint (transform.position);
 
 		for (int i = 0; i < temptationValues.Length; ++i) {
 			temptationValues [i] = UnityEngine.Random.Range (0.1f, 0.9f);
@@ -37,7 +37,7 @@ public class BasicEnemyUnit : Unit {
         base.Update();
 
 		// analyze surrounding if changing graph position
-		GraphMaker.GraphPoint newGraphPoint = graph.GetGraphPoint (transform.position);
+		GraphMaker.GraphPoint newGraphPoint = GraphMaker.Instance.GetGraphPoint (transform.position);
 		if (graphPoint.pos != newGraphPoint.pos) {
 			graphPoint = newGraphPoint;
 			AnalyzeNewSurroundings ();
@@ -90,17 +90,17 @@ public class BasicEnemyUnit : Unit {
 	public void AnalyzeNewSurroundings(){
 		// if moved into a new grid position, Analyze new surroundings for places to go
 		int x = 0, y = 0;
-		graph.GetGraphPointXYGridCoords (graphPoint, ref x, ref y);
+		GraphMaker.Instance.GetGraphPointXYGridCoords (graphPoint, ref x, ref y);
 
 		// look at surrounding building to determine want to enter any
 		SpecialBuilding buildingToEnter = null;
 		float bestEnterValue = 0.0f;
 		for (int i = x - 1; i < x + 1; ++x) {
 			for (int j = y - 1; j < y + 1; ++y) {
-				if (x < 0 || x >= graph.colLength || y < 0 || y >= graph.rowLength)
+				if (x < 0 || x >= GraphMaker.Instance.colLength || y < 0 || y >= GraphMaker.Instance.rowLength)
 					continue;
-				if (graph.GetGridType (x, y) == GraphMaker.GRID_TYPE.SPECIAL_BUILDING) {
-					SpecialBuilding building = graph.GetGraphPoint (x, y).occupyingObj.GetComponent<SpecialBuilding>();
+				if (GraphMaker.Instance.GetGridType (x, y) == GraphMaker.GRID_TYPE.SPECIAL_BUILDING) {
+					SpecialBuilding building = GraphMaker.Instance.GetGraphPoint (x, y).occupyingObj.GetComponent<SpecialBuilding>();
 					float want = WantsToEnterBuilding (building);
 					if (want > bestEnterValue) {
 						want = bestEnterValue;

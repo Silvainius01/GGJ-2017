@@ -6,21 +6,22 @@ public class Unit : MonoBehaviour {
 	private Rigidbody rbody;
 
     [Header("Navigation Options")]
-    protected GraphMaker graph;
 	public float initialSpeed = 10.0f;
 	public float distToStop = 0.1f;
     public bool navigateGraph = false;
     public bool destroyOnPathCompletion = false;
 	public float speed { get; set; }
     [Header("Navigation Info")]
+    public bool hasCompletedPath = false;
 	public Vector2 movePos;
-    public List<int> path;
+    public List<int> path = new List<int>();
 
 	[Header("Attack Stats")]
 	public float range = 10.0f;
 	public float killChance = 0.1f;
 	public Timer attackTimer = new Timer(1.0f);
 	protected MilitiaController currTarget = null;
+
 
 	// vision variables
 	[Header("attack vision")]
@@ -34,44 +35,53 @@ public class Unit : MonoBehaviour {
 	// Use this for initialization
 	void Awake ()
     {
-        graph = GameObject.FindGameObjectWithTag("GameBoard").GetComponent<GraphMaker>();
-		rbody = GetComponent<Rigidbody> ();
+        rbody = GetComponent<Rigidbody> ();
 		movePos = transform.position;
 		speed = initialSpeed;
+
+        if (path == null)
+            path = new List<int>();
 	}
 
     // Update is called once per frame
     public virtual void Update()
     {
-		if (!stunned) {
-			// move
-			if (navigateGraph)
-			{
-                if (path.Count <= 0)
+        if (!stunned)
+        {
+            if (path.Count > 0)
+                hasCompletedPath = false;
+
+            if (!hasCompletedPath)
+            {
+                Vector2 toMoveTarget = (movePos - (Vector2)transform.position);
+
+                if (toMoveTarget.magnitude <= distToStop)
                 {
-                    if (destroyOnPathCompletion)
+                    if (navigateGraph)
                     {
-                        Destroy(this.gameObject);
-                        return;
+                        path.RemoveAt(0);
+                        if (path.Count <= 0)
+                        {
+                            if (destroyOnPathCompletion)
+                            {
+                                Destroy(this.gameObject);
+                                return;
+                            }
+                         hasCompletedPath = true;
+                        }
+                        else
+                            movePos = GraphMaker.Instance.PointPos(path[0]);
                     }
                     else
-                        path = graph.GetRandomPathFrom(transform.position);
+                        hasCompletedPath = true;
+
+                    rbody.velocity = Vector3.zero;
                 }
-
-                movePos = graph.PointPos(path[0]);
-			}
-
-			Vector2 toMoveTarget = (movePos - (Vector2)transform.position);
-			if (toMoveTarget.magnitude <= distToStop)
-			{
-				if (navigateGraph)
-					path.RemoveAt(0);
-				rbody.velocity = Vector3.zero;
-			}
-			else
-			{
-				rbody.velocity = toMoveTarget.normalized * speed;
-			}
+                else
+                {
+                    rbody.velocity = toMoveTarget.normalized * speed;
+                }
+            }
 
 			// attack
 			if (currTarget != null) {
@@ -131,7 +141,7 @@ public class Unit : MonoBehaviour {
 	}
 
 	protected virtual void MoveAlongShortestPath(Vector2 pos){
-		path = graph.GetPath (transform.position, pos);
+		path = GraphMaker.Instance.GetPath (transform.position, pos);
 		navigateGraph = true;
 	}
 }
