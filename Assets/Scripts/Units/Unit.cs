@@ -13,6 +13,7 @@ public class Unit : MonoBehaviour {
     public bool navigateGraph = false;
     public List<int> path;
 
+    public bool destroyOnPathCompletion = false;
 
 
 	// Use this for initialization
@@ -29,7 +30,16 @@ public class Unit : MonoBehaviour {
         if (navigateGraph)
         {
             if (path.Count <= 0)
-                path = graph.GetRandomPathFrom(transform.position);
+            {
+                if (destroyOnPathCompletion)
+                {
+                    Destroy(this.gameObject);
+                    return;
+                }
+                else
+                    path = graph.GetRandomPathFrom(transform.position);
+            }
+
             movePos = graph.PointPos(path[0]);
         }
 

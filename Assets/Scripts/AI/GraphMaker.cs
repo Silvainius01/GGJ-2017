@@ -87,6 +87,10 @@ public class GraphMaker : MonoBehaviour
     {
         float dist = Vector2.Distance(graphPoints[indexA].pos, graphPoints[indexB].pos);
 
+        foreach (var link in graphPoints[indexA].connections)
+            if (link.index == indexB)
+                return;
+
         graphPoints[indexA].connections.Add(new GraphPoint.ConnectionData(indexB, dist));
         graphPoints[indexB].connections.Add(new GraphPoint.ConnectionData(indexA, dist));
     }
@@ -168,12 +172,26 @@ public class GraphMaker : MonoBehaviour
 
     void GenerateRandomBlocks()
     {
-        foreach(var point in graphPoints)
-            if(graphPoints.IndexOf(point) != 0 && graphPoints.IndexOf(point)!=99)
+        foreach (var point in graphPoints)
+            if (point.connections.Count > 2)
             {
-                float chance = Random.value;
-                if (Random.value <= blockCreationChance)
-                    point.isBlocked = true;
+                bool valid = true;
+                
+                foreach(var link in  point.connections)
+                    if (graphPoints[link.index].connections.Count <= 2)
+                        valid = false;
+
+                if (valid && graphPoints.IndexOf(point) != 0 && graphPoints.IndexOf(point) != 99)
+                {
+                    float chance = Random.value;
+                    if (Random.value <= blockCreationChance)
+                    {
+                        point.isBlocked = true;
+                        Debug.Log("Connection count: " + point.connections.Count);
+                        while (point.connections.Count > 0)
+                            DisconnectPoints(graphPoints.IndexOf(point), point.connections[0].index);
+                    }
+                }
             }
     }
     #endregion
@@ -314,7 +332,7 @@ public class GraphMaker : MonoBehaviour
             foreach (var link in graphPoints[curIndex].connections)
             {
                 dist = link.dist + graphPoints[curIndex].navData.tDist;
-                else if (dist < graphPoints[link.index].navData.tDist)
+                if (dist < graphPoints[link.index].navData.tDist)
                     graphPoints[link.index].navData = new GraphPoint.NavData(curIndex, dist);
                 
 
