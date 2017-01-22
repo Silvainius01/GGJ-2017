@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using System.Collections;
+using System.Collections.Generic;
 
 public class GameManager : MonoBehaviour {
 
@@ -14,8 +14,18 @@ public class GameManager : MonoBehaviour {
 	[Header("Graph Generation")]
 	public int numBuildingGenerations = 3;
 
+	private GameObject gameMenuObj;
+	private Spawner spawner;
+
 	// Use this for initialization
 	void Start () {
+		// get the game menu
+		gameMenuObj = GameObject.FindGameObjectWithTag("BuildMenu");
+		gameMenuObj.SetActive (true);
+
+		// get the enemy spawner
+		spawner = GetComponent<Spawner>();
+
 		// create a random game board
 		graph = GameObject.FindGameObjectWithTag ("GameBoard").GetComponent<GraphMaker> ();
 		graph.Init ();
@@ -38,6 +48,15 @@ public class GameManager : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-	
+		switch(state){
+		case GameState.BUILD:
+			break;
+		case GameState.PLAY:
+			break;
+		}
+	}
+
+	List<GameObject> GetLivingEnemies(){
+		return null;
 	}
 }

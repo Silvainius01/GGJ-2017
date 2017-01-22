@@ -34,28 +34,26 @@ public class Spawner : MonoBehaviour
         spawnQ = new List<GameObject>();
         spawnInterval = new Timer(1.0f, true);
     }
-	
-	// Update is called once per frame
-	void Update ()
-    {
-	    if(addEnemiesToQ > 0)
-        {
-            AddToQ(Resources.Load("Prefabs/BasicEnemy") as GameObject, addEnemiesToQ);
-            addEnemiesToQ = 0;
-        }
 
-        spawnInterval.Update(Time.deltaTime);
-        if(spawnInterval.hasFired && spawnQ.Count > 0)
-        {
-            Unit newUnit = Instantiate(spawnQ[0].GetComponent<BasicEnemyUnit>());
+	public GameObject Update(float dt){
+		if(addEnemiesToQ > 0)
+		{
+			AddToQ(Resources.Load("Prefabs/BasicEnemy") as GameObject, addEnemiesToQ);
+			addEnemiesToQ = 0;
+		}
 
-            spawnQ.RemoveAt(0);
-            newUnit.navigateGraph = true;
-            newUnit.destroyOnPathCompletion = true;
-            newUnit.transform.position = graph.PointPos(startIndex);
-            newUnit.path = graph.GetPath(graph.PointPos(startIndex), graph.PointPos(finalIndex));
-            spawnInterval.Activate();
-        }
-        
+		spawnInterval.Update(Time.deltaTime);
+		if(spawnInterval.hasFired && spawnQ.Count > 0)
+		{
+			Unit newUnit = Instantiate(spawnQ[0].GetComponent<BasicEnemyUnit>());
+
+			spawnQ.RemoveAt(0);
+			newUnit.navigateGraph = true;
+			newUnit.destroyOnPathCompletion = true;
+			newUnit.transform.position = graph.PointPos(startIndex);
+			newUnit.path = graph.GetPath(graph.PointPos(startIndex), graph.PointPos(finalIndex));
+			spawnInterval.Activate();
+		}
+		return null;
 	}
 }
