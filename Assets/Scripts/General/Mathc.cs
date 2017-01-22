@@ -7,6 +7,7 @@ public static class Mathc
     public const float HALF_PI = Mathf.PI / 2;
     public const float QUARTER_PI = Mathf.PI / 4;
     public const float EIGTH_PI = Mathf.PI / 8;
+    public const float TWO_PI = Mathf.PI * 2;
 
     public static float fMod(float a, float b)
     {
@@ -105,22 +106,8 @@ public static class Mathc
     /// </summary>
     public static bool VectorIsBetween(Vector2 p1, Vector2 p2, Vector2 p3)
     {
-        if (Approximately(p1.x, p2.x, 0.1f))
-            p1.x = p2.x;
-        else if (Approximately(p1.x, p3.x, 0.1f))
-            p1.x = p3.x;
-
-        if (Approximately(p1.y, p2.y, 0.1f))
-            p1.y = p2.y;
-        else if (Approximately(p1.y, p3.y, 0.1f))
-            p1.y = p3.y;
-
-        if ((p1.x >= p2.x && p1.x <= p3.x) || (p1.x >= p3.x && p1.x <= p2.x))
-        {
-            if (p1.y >= p2.y && p1.y <= p3.y)
-                return true;
-            return (p1.y <= p2.y && p1.y >= p3.y);
-        }
+        if (ValueIsBetween(p1.x, p2.x, p3.x) && ValueIsBetween(p1.y, p2.y, p3.y))
+            return true;
         return false;
     }
 

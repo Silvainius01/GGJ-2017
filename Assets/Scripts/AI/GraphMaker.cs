@@ -59,17 +59,19 @@ public class GraphMaker : MonoBehaviour
         }
     }
 
-    [Header("Graph Gen Options")]
     public bool scanGraph = false;
-    public bool generate = false;
+    [Header("Graph Gen Options")]
     public float squareSideSize = 5.0f;
+    public bool generateInitial = false;
+    public float blockCreationChance = 0.2f;
+    public bool generateBlocks = false;
     [Header("Graph Information")]
     public int rowLength = 0, colLength = 0;
     public List<GraphPoint> graphPoints = new List<GraphPoint>();
     [Header("Graph Debug NavData")]
-    public bool navigate = false;
+    public bool navigate = true;
     public int startIndex = 0;
-    public int finalIndex = 0;
+    public int finalIndex = 99;
     public List<int> navPath = new List<int>();
 
 
@@ -94,6 +96,10 @@ public class GraphMaker : MonoBehaviour
     void ConnectPoints(int indexA, int indexB)
     {
         float dist = Vector2.Distance(graphPoints[indexA].pos, graphPoints[indexB].pos);
+
+        foreach (var link in graphPoints[indexA].connections)
+            if (link.index == indexB)
+                return;
 
         graphPoints[indexA].connections.Add(new GraphPoint.ConnectionData(indexB, dist));
         graphPoints[indexB].connections.Add(new GraphPoint.ConnectionData(indexA, dist));
@@ -173,12 +179,37 @@ public class GraphMaker : MonoBehaviour
                 DisconnectPoints(index, index - 1);
         }
     }
+
+    public void GenerateRandomBlocks()
+    {
+        foreach (var point in graphPoints)
+            if (point.connections.Count > 2)
+            {
+                bool valid = true;
+                
+                foreach(var link in  point.connections)
+                    if (graphPoints[link.index].connections.Count <= 2)
+                        valid = false;
+
+                if (valid && graphPoints.IndexOf(point) != 0 && graphPoints.IndexOf(point) != 99)
+                {
+                    float chance = Random.value;
+                    if (Random.value <= blockCreationChance)
+                    {
+                        point.isBlocked = true;
+                        Debug.Log("Connection count: " + point.connections.Count);
+                        while (point.connections.Count > 0)
+                            DisconnectPoints(graphPoints.IndexOf(point), point.connections[0].index);
+                    }
+                }
+            }
+    }
     #endregion
 
     // Graph Navigation.
     #region
 
-    void NavigateBetween(int indexA, int indexB)
+    void NavigateBetweenAstar(int indexA, int indexB)
     {
         int nextIndex = indexB;
         var q = new List<int>();
@@ -264,17 +295,90 @@ public class GraphMaker : MonoBehaviour
             nextIndex = graphPoints[nextIndex].navData.pIndex;
             q.Add(nextIndex);
         }
-
-        if(!graphPoints[q[q.Count-1]].IsConnectedTo(indexB))
-        {
-            //NavigateBetween(indexB, indexA);
-            return;
-        }
+        
 
         navPath.Clear();
         for (int a = 0; a < q.Count; a++)
             navPath.Add(q[q.Count - (a + 1)]);
     }
+
+    void NavigateBetweenDijk(int indexA, int indexB)
+    {
+        int nextIndex = indexB;
+        var q = new List<int>();
+        bool foundTarget = false;
+        float dist = float.MaxValue;
+
+        startIndex = indexA;
+        finalIndex = indexB;
+
+        if (startIndex == finalIndex)
+            return;
+
+        ClearPointNavData();
+        graphPoints[indexA].navData = new GraphPoint.NavData(indexA, 0.0f);
+        graphPoints[indexA].navData.evaluated = true;
+        graphPoints[indexB].navData.wasTarget = true;
+
+        foreach (var link in graphPoints[indexA].connections)
+        {
+            graphPoints[link.index].navData = new GraphPoint.NavData(indexA, link.dist);
+            q.Add(link.index);
+        }
+
+        while (q.Count > 0)
+        {
+            int curIndex = q[0];
+
+            if (curIndex == indexB)
+                foundTarget = true;
+            else if (graphPoints[curIndex].navData.evaluated)
+            {
+                q.Remove(curIndex);
+                continue;
+            }
+            
+            dist = float.MaxValue;
+            foreach (var link in graphPoints[curIndex].connections)
+            {
+                dist = link.dist + graphPoints[curIndex].navData.tDist;
+                 if (dist < graphPoints[link.index].navData.tDist)
+                    graphPoints[link.index].navData = new GraphPoint.NavData(curIndex, dist);
+                if (!foundTarget && !graphPoints[link.index].navData.evaluated)
+                    q.Add(link.index);
+            }
+
+            graphPoints[curIndex].navData.evaluated = true;
+            q.Remove(curIndex);
+        }
+
+        // Record path.
+        q.Clear();
+        q.Add(nextIndex);
+        for (int a = 0; a < graphPoints.Count && nextIndex != indexA; a++)
+        {
+            nextIndex = graphPoints[nextIndex].navData.pIndex;
+            q.Add(nextIndex);
+        }
+
+
+        navPath.Clear();
+        for (int a = 0; a < q.Count; a++)
+            navPath.Add(q[q.Count - (a + 1)]);
+    }
+
+    public List<int> GetPath(Vector2 startPos, Vector2 endPos)
+    {
+        List<int> retval = new List<int>();
+
+        NavigateBetweenDijk(GetClosestPointTo(startPos), GetClosestPointTo(endPos));
+
+        for (int a = 0; a < navPath.Count; a++)
+            retval.Add(navPath[a]);
+
+        return retval;
+
+    } 
 
     /// <summary> Generate a random path with the closest point to 'pos' being the start.  </summary>
     public List<int> GetRandomPathFrom(Vector2 pos)
@@ -286,7 +390,7 @@ public class GraphMaker : MonoBehaviour
         while(graphPoints[indexB].isBlocked)
             indexB = Random.Range(0, graphPoints.Count - 1); ;
 
-        NavigateBetween(indexA, indexB);
+        NavigateBetweenAstar(indexA, indexB);
 
         for (int a = 0; a < navPath.Count; a++)
             retval.Add(navPath[a]);
@@ -354,27 +458,46 @@ public class GraphMaker : MonoBehaviour
 
     #endregion
 
+	public void Init(){
+		Awake();
+		GeneratePoints();
+		FinalizeConections();
+		ClearPointNavData();
+	}
+
     private void OnDrawGizmos()
     {
-        if (generate)
+        if (generateInitial)
         {
             Awake();
             GeneratePoints();
             FinalizeConections();
             ClearPointNavData();
-            generate = false;
+            generateInitial = false;
+        }
+
+        if(generateBlocks)
+        {
+            scanGraph = true;
+            generateBlocks = false;
+            GenerateRandomBlocks();
         }
 
         if (scanGraph)
         {
             FinalizeConections();
             ScanGraphForBlocks();
+            navPath.Clear();
             scanGraph = false;
         }
 
         if(navigate)
         {
-            NavigateBetween(startIndex, finalIndex);
+            NavigateBetweenDijk(startIndex, finalIndex);
+
+            if (!graphPoints[navPath[navPath.Count - 1]].IsConnectedTo(finalIndex))
+                //NavigateBetween(finalIndex, startIndex);
+
             navigate = false;
         }
 
@@ -430,13 +553,35 @@ public class GraphMaker : MonoBehaviour
 		graphPoint.gridType = type;
 	}
 
-	public GRID_TYPE GetGridType(int x, int y){
+    public void SetGridType(int index, GameObject obj, GRID_TYPE type)
+    {
+        GraphPoint graphPoint = graphPoints[index];
+        graphPoint.occupyingObj = obj;
+        graphPoint.gridType = type;
+
+		if (type == GRID_TYPE.EMPTY_BUILDING || type == GRID_TYPE.SPECIAL_BUILDING || type == GRID_TYPE.WALL) {
+			graphPoint.isBlocked = true;
+			ScanGraphForBlocks ();
+		}
+    }
+
+    public GRID_TYPE GetGridType(int x, int y){
 		return GetGraphPoint (x, y).gridType;
 	}
 
 	// col + rowlength * row
 	public GraphPoint GetGraphPoint(int x, int y){
 		return graphPoints [y + rowLength * x];
+	}
+
+	public GraphPoint GetGraphPoint(Vector2 pos){
+		return graphPoints [GetClosestPointTo (pos)];
+	}
+
+	public void GetGraphPointXYGridCoords(GraphPoint graphPoint, ref int x, ref int y){
+		int index = graphPoints.IndexOf (graphPoint);
+		x = index % rowLength;
+		y = index / rowLength;
 	}
 
 	public bool IsPosInGridPos(Vector2 pos, int gridX, int gridY){

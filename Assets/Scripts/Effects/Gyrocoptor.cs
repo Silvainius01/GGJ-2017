@@ -18,7 +18,7 @@ public class Gyrocoptor : MonoBehaviour {
 	public float acceleration = 5.0f;
 	public float diveDistance = 2.0f;
 	public float liftSpeed = 2.0f;
-	public float crashRadius;
+	public float crashRadius = 5.0f;
 	private Rigidbody rbody;
 	private Vector3 startCrashPos;
 	public Timer crashTimer = new Timer(0.5f);
@@ -31,29 +31,24 @@ public class Gyrocoptor : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-                //Debug.Log("Lift off" + rbody.velocity);
-                //Debug.Log("Traveling" + rbody.velocity);
 		switch(state){
 		case GYRO_STATE.TAKING_OFF:
-                Debug.Log("Taking off");
-			if (transform.position.z <= flightHeight) {
+			if (transform.position.z <= -flightHeight) {
 				transform.position = new Vector3(transform.position.x, transform.position.y, -flightHeight);
 				rbody.velocity = new Vector3 (rbody.velocity.x, rbody.velocity.y, 0.0f);
 				state = GYRO_STATE.FLYING;
 			}
 			break;
 		case GYRO_STATE.FLYING:
-                Debug.Log("Flying");
-                if (GetDistFromTarget () <= diveDistance) {
+			if (GetDistFromTarget () <= diveDistance) {
 				rbody.velocity = new Vector2 (0.0f, 0.0f);
 				startCrashPos = transform.position;
 				crashTimer.Activate ();
 				state = GYRO_STATE.CRASHING;
-                }
+			}
 			break;
 		case GYRO_STATE.CRASHING:
-                Debug.Log("Crashing");
-                crashTimer.Update (Time.deltaTime);
+			crashTimer.Update (Time.deltaTime);
 
 			// lerp towards target
 			Vector3 crashPos = target != null ? target.transform.position : (Vector3) graph.GetGraphPoint(gridX, gridY).pos;
@@ -64,6 +59,15 @@ public class Gyrocoptor : MonoBehaviour {
 			else {
 				// if close enough, explode
 				Destroy(gameObject);
+
+				// does aoe damage to enemies
+				GameObject[] enemies = GameObject.FindGameObjectsWithTag("BasicEnemy");
+				foreach (GameObject enemy in enemies) {
+					Vector2 toEnemy = enemy.transform.position - transform.position;
+					if (toEnemy.sqrMagnitude <= crashRadius * crashRadius) {
+						Destroy (enemy);
+					}
+				}
 			}
 			break;
 		}

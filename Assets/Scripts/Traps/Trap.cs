@@ -23,6 +23,9 @@ public abstract class Trap : MonoBehaviour {
 
 	public void DisplayTriggerKey(){
 		// TODO print text over the position showing the hotkey
+		if (!activated) {
+
+		}
 	}
 
 	public void Init(KeyCode key, int gridX, int gridY){

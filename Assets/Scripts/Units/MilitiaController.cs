@@ -17,7 +17,7 @@ public class MilitiaController : Unit {
 		RangedAttack (unit);
 	}
 
-	protected override Unit GetTarget (){
+	protected BasicEnemyUnit GetTarget (){
 		return null;
 	}
 
