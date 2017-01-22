@@ -69,9 +69,9 @@ public class GraphMaker : MonoBehaviour
     public int rowLength = 0, colLength = 0;
     public List<GraphPoint> graphPoints = new List<GraphPoint>();
     [Header("Graph Debug NavData")]
-    public bool navigate = false;
+    public bool navigate = true;
     public int startIndex = 0;
-    public int finalIndex = 0;
+    public int finalIndex = 99;
     public List<int> navPath = new List<int>();
 
 
@@ -180,7 +180,7 @@ public class GraphMaker : MonoBehaviour
         }
     }
 
-    void GenerateRandomBlocks()
+    public void GenerateRandomBlocks()
     {
         foreach (var point in graphPoints)
             if (point.connections.Count > 2)
@@ -458,6 +458,13 @@ public class GraphMaker : MonoBehaviour
 
     #endregion
 
+	public void Init(){
+		Awake();
+		GeneratePoints();
+		FinalizeConections();
+		ClearPointNavData();
+	}
+
     private void OnDrawGizmos()
     {
         if (generateInitial)
@@ -551,6 +558,11 @@ public class GraphMaker : MonoBehaviour
         GraphPoint graphPoint = graphPoints[index];
         graphPoint.occupyingObj = obj;
         graphPoint.gridType = type;
+
+		if (type == GRID_TYPE.EMPTY_BUILDING || type == GRID_TYPE.SPECIAL_BUILDING || type == GRID_TYPE.WALL) {
+			graphPoint.isBlocked = true;
+			ScanGraphForBlocks ();
+		}
     }
 
     public GRID_TYPE GetGridType(int x, int y){

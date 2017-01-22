@@ -6,7 +6,7 @@ public class UnitSelection : MonoBehaviour
     public bool first = true;
     public Vector2 sPos;
     public Vector2 fPos;
-    public Texture2D texture;
+	public Texture2D texture = new Texture2D(100,100);
     public  Rect rect = new Rect();
 	// Use this for initialization
 	void Start ()
@@ -26,7 +26,7 @@ public class UnitSelection : MonoBehaviour
                 sPos = fPos;
                 first = false;
             }
-            rect = new Rect(Mathc.GetMidPoint(sPos, fPos), new Vector2(10.0f, 10.0f));
+            rect = new Rect(Mathc.GetMidPoint(sPos, fPos), new Vector2(100.0f, 100.0f));
         }
         else if(!first)
         {
@@ -40,10 +40,11 @@ public class UnitSelection : MonoBehaviour
         }
 	}
 
-    private void OnGUI()
+    void OnGUI()
     {
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButton(0))
         {
+			Debug.Log ("drawing selection");
             GUI.color = Color.red;
             GUI.DrawTexture(rect, texture);
         }
