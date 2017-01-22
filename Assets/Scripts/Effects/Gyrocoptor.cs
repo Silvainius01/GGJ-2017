@@ -18,7 +18,7 @@ public class Gyrocoptor : MonoBehaviour {
 	public float acceleration = 5.0f;
 	public float diveDistance = 2.0f;
 	public float liftSpeed = 2.0f;
-	public float crashRadius;
+	public float crashRadius = 5.0f;
 	private Rigidbody rbody;
 	private Vector3 startCrashPos;
 	public Timer crashTimer = new Timer(0.5f);
@@ -59,6 +59,15 @@ public class Gyrocoptor : MonoBehaviour {
 			else {
 				// if close enough, explode
 				Destroy(gameObject);
+
+				// does aoe damage to enemies
+				GameObject[] enemies = GameObject.FindGameObjectsWithTag("BasicEnemy");
+				foreach (GameObject enemy in enemies) {
+					Vector2 toEnemy = enemy.transform.position - transform.position;
+					if (toEnemy.sqrMagnitude <= crashRadius * crashRadius) {
+						Destroy (enemy);
+					}
+				}
 			}
 			break;
 		}

@@ -15,6 +15,9 @@ public class PidePiper : Trap {
 		foreach (GameObject enemy in enemies) {
 			for (int x = gridX - (trapGridRange - 1); x < gridX + (trapGridRange - 1); ++x) {
 				for (int y = gridY - (trapGridRange - 1); x < gridY + (trapGridRange - 1); ++x) {
+					if (x < 0 || x >= graph.colLength || y < 0 || y >= graph.rowLength)
+						continue;
+
 					// check to see if enemy is in affected grid pos
 					if(graph.IsPosInGridPos(enemy.transform.position, x, y)){
 						// plague the enemy

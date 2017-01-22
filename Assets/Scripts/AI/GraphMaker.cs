@@ -539,6 +539,16 @@ public class GraphMaker : MonoBehaviour
 		return graphPoints [y + rowLength * x];
 	}
 
+	public GraphPoint GetGraphPoint(Vector2 pos){
+		return graphPoints [GetClosestPointTo (pos)];
+	}
+
+	public void GetGraphPointXYGridCoords(GraphPoint graphPoint, ref int x, ref int y){
+		int index = graphPoints.IndexOf (graphPoint);
+		x = index % rowLength;
+		y = index / rowLength;
+	}
+
 	public bool IsPosInGridPos(Vector2 pos, int gridX, int gridY){
 		return pos.x >= gridX * squareSideSize && pos.x <= gridX * (squareSideSize + 1)
 			&& pos.y >= gridY * squareSideSize && pos.y <= gridY * (squareSideSize + 1);
