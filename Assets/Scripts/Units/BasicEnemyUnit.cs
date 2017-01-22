@@ -144,7 +144,8 @@ public class BasicEnemyUnit : Unit {
 		}
 	}
 
-	public void Slow(float percent){
+	public void Slow(float percent)
+    {
 		AddEffect (EnemyEffect.FAT);
 		speed = speed * percent;
 		if (HasEffectActive (EnemyEffect.DRUNK)) {

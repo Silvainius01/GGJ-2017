@@ -4,15 +4,16 @@ using System.Collections.Generic;
 public class Unit : MonoBehaviour {
 
 	private Rigidbody rbody;
-	public float initialSpeed = 10.0f;
-	protected bool stunned = false;
 
     [Header("Navigation Options")]
     protected GraphMaker graph;
-	public float speed = 10.0f;
+	public float initialSpeed = 10.0f;
 	public float distToStop = 0.1f;
-	public Vector2 movePos;
     public bool navigateGraph = false;
+    public bool destroyOnPathCompletion = false;
+	public float speed { get; set; }
+    [Header("Navigation Info")]
+	public Vector2 movePos;
     public List<int> path;
 
 	[Header("Attack Stats")]
@@ -25,6 +26,10 @@ public class Unit : MonoBehaviour {
 	[Header("attack vision")]
 	public float visionAngle = 30.0f;
 	public float visionRange = 10.0f;
+
+    public bool ownedByPlayer = false;
+    public bool isSelected = false;
+	protected bool stunned = false;
 
 	// Use this for initialization
 	void Awake ()
@@ -42,9 +47,18 @@ public class Unit : MonoBehaviour {
 			// move
 			if (navigateGraph)
 			{
-				if (path.Count <= 0)
-					path = graph.GetRandomPathFrom(transform.position);
-				movePos = graph.PointPos(path[0]);
+                if (path.Count <= 0)
+                {
+                    if (destroyOnPathCompletion)
+                    {
+                        Destroy(this.gameObject);
+                        return;
+                    }
+                    else
+                        path = graph.GetRandomPathFrom(transform.position);
+                }
+
+                movePos = graph.PointPos(path[0]);
 			}
 
 			Vector2 toMoveTarget = (movePos - (Vector2)transform.position);
