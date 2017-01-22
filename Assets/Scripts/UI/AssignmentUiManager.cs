@@ -29,6 +29,13 @@ public class AssignmentUiManager : MonoBehaviour {
 
     public void SetConstruct (GameObject _construction)
     {
+		// if creating a building, remove empty building obj
+		if (gridType == GraphMaker.GRID_TYPE.SPECIAL_BUILDING) {
+			GraphMaker.GraphPoint oldGraphPoint = My_GraphMaker.GetGraphPoint (curTile.pos);
+			Destroy (oldGraphPoint.occupyingObj);
+		}
+			
+		// create obj and place it on the grid
 		GameObject _spawn = Instantiate (_construction, curTile.pos, Quaternion.identity) as GameObject;
         My_GraphMaker.SetGridType(My_GraphMaker.GetClosestPointTo(curTile.pos), _spawn, gridType);
 
