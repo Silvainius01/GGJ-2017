@@ -12,9 +12,14 @@ public class Unit : MonoBehaviour {
 	public Vector2 movePos;
     public bool navigateGraph = false;
     public List<int> path;
+<<<<<<< HEAD
 
     public bool destroyOnPathCompletion = false;
 
+=======
+	public float initialSpeed = 10.0f;
+	protected bool stunned = false;
+>>>>>>> origin/matt
 
 	// Use this for initialization
 	void Awake ()
@@ -22,11 +27,13 @@ public class Unit : MonoBehaviour {
         graph = GameObject.FindGameObjectWithTag("GameBoard").GetComponent<GraphMaker>();
 		rbody = GetComponent<Rigidbody> ();
 		movePos = transform.position;
+		speed = initialSpeed;
 	}
 
     // Update is called once per frame
     public virtual void Update()
     {
+<<<<<<< HEAD
         if (navigateGraph)
         {
             if (path.Count <= 0)
@@ -42,18 +49,29 @@ public class Unit : MonoBehaviour {
 
             movePos = graph.PointPos(path[0]);
         }
+=======
+		if (!stunned) {
+			if (navigateGraph)
+			{
+				if (path.Count <= 0)
+					path = graph.GetRandomPathFrom(transform.position);
+				movePos = graph.PointPos(path[0]);
+			}
 
-        Vector2 toMoveTarget = (movePos - (Vector2)transform.position);
-        if (toMoveTarget.magnitude <= distToStop)
-        {
-            if (navigateGraph)
-                path.RemoveAt(0);
-            rbody.velocity = Vector3.zero;
-        }
-        else
-        {
-            rbody.velocity = toMoveTarget.normalized * speed;
-        }
+			Vector2 toMoveTarget = (movePos - (Vector2)transform.position);
+			if (toMoveTarget.magnitude <= distToStop)
+			{
+				if (navigateGraph)
+					path.RemoveAt(0);
+				rbody.velocity = Vector3.zero;
+			}
+			else
+			{
+				rbody.velocity = toMoveTarget.normalized * speed;
+			}
+		}
+>>>>>>> origin/matt
+
     }
 		
 	public virtual void Attack (Unit unit) {}

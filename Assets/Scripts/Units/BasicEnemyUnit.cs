@@ -7,6 +7,8 @@ public class BasicEnemyUnit : Unit {
 	{
 		FAT,
 		DRUNK,
+		PLAGUE,
+		DUEL_WINNER,
 		NONE
 	}
 
@@ -16,8 +18,7 @@ public class BasicEnemyUnit : Unit {
 	void Start () {
 	
 	}
-	
-	// Update is called once per frame
+
 	public override void  Update () {
         base.Update();
 	}
@@ -55,11 +56,28 @@ public class BasicEnemyUnit : Unit {
 	}
 
 	public void Slow(float percent){
-
+		AddEffect (EnemyEffect.FAT);
+		speed = speed * percent;
 	}
 
 	public void GetDrunk(float slowPercent, float drunkTime, float enterBuldingPercent){
+		AddEffect (EnemyEffect.DRUNK);
+	}
 
+	public void Plague(float deathTime){
+		AddEffect (EnemyEffect.PLAGUE);
+		// add plague componenet
+		Plague plagueComp = gameObject.AddComponent<Plague>();
+		plagueComp.Init (deathTime);
+	}
+
+	public void DuelStarted(){
+		stunned = true;
+	}
+
+	public void DuelEnded(){
+		AddEffect (EnemyEffect.DUEL_WINNER);
+		stunned = false;
 	}
 
 	public void AddEffect(EnemyEffect effect){
