@@ -24,7 +24,7 @@ public class TileSelectionGeneration : MonoBehaviour {
         Vector3 SpawnPoint = new Vector3(_graphPoint.pos.x, _graphPoint.pos.y, uiDistanceFromScene);
         GameObject _UiElement = (GameObject) Instantiate(TileUiPrefab, SpawnPoint, Quaternion.identity);
         _UiElement.transform.SetParent(Canvas.transform);
-        _UiElement.GetComponent<ButtonPassActionForward>().Point = _graphPoint;
+		_UiElement.GetComponent<ButtonPassActionForward>().Point = _graphPoint;
 
         //TODO: make new Ui element know about its graph point
     }

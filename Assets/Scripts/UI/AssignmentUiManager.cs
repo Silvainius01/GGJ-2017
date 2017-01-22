@@ -29,7 +29,9 @@ public class AssignmentUiManager : MonoBehaviour {
 
     public void SetConstruct (GameObject _construction)
     {
-        My_GraphMaker.SetGridType(My_GraphMaker.GetClosestPointTo(curTile.pos), _construction, gridType);
+		GameObject _spawn = Instantiate (_construction, curTile.pos, Quaternion.identity) as GameObject;
+        My_GraphMaker.SetGridType(My_GraphMaker.GetClosestPointTo(curTile.pos), _spawn, gridType);
+
         foreach(GameObject _obj in curSpawned)
         {
             Destroy(_obj);
@@ -46,13 +48,13 @@ public class AssignmentUiManager : MonoBehaviour {
         FocusGroup.SetActive(true);
         CanvasToToggleOff.SetActive(false);
 
-        if(curTile.gridType == GraphMaker.GRID_TYPE.NONE)
+        if(curTile.gridType == GraphMaker.GRID_TYPE.EMPTY_BUILDING)
+        {
+			gridType = GraphMaker.GRID_TYPE.EMPTY_BUILDING;
+            PopulateUiRing(BuildingButtons);
+        } else if (curTile.gridType == GraphMaker.GRID_TYPE.NONE)
         {
             gridType = GraphMaker.GRID_TYPE.NONE;
-            PopulateUiRing(BuildingButtons);
-        } else if (curTile.gridType == GraphMaker.GRID_TYPE.TRAP)
-        {
-            gridType = GraphMaker.GRID_TYPE.TRAP;
             PopulateUiRing(TrapButtons);
         } else
         {
