@@ -25,18 +25,17 @@ public class UnitSelection : MonoBehaviour
                 sPos = fPos;
                 first = false;
             }
+
+            
         }
         else if(!first)
         {
             var unitsOnMap = FindObjectsOfType<Unit>();
 
             foreach(var unit in unitsOnMap)
-            {
                 if (Mathc.VectorIsBetween(unit.transform.position, sPos, fPos))
-                {
-
-                }
-            }
+                    if (unit.ownedByPlayer)
+                        unit.isSelected = true;
         }
 	}
 }

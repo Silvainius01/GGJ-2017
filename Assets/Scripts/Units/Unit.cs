@@ -16,6 +16,9 @@ public class Unit : MonoBehaviour {
     public List<int> path;
     GraphMaker graph;
 
+    public bool ownedByPlayer = false;
+    public bool isSelected = false;
+
 
 	protected bool stunned = false;
 
@@ -34,13 +37,16 @@ public class Unit : MonoBehaviour {
 		if (!stunned) {
 			if (navigateGraph)
 			{
-                if (destroyOnPathCompletion)
+                if (path.Count <= 0)
                 {
-                    Destroy(this.gameObject);
-                    return;
+                    if (destroyOnPathCompletion)
+                    {
+                        Destroy(this.gameObject);
+                        return;
+                    }
+                    else
+                        path = graph.GetRandomPathFrom(transform.position);
                 }
-                else
-                    path = graph.GetRandomPathFrom(transform.position);
 
                 movePos = graph.PointPos(path[0]);
 			}
