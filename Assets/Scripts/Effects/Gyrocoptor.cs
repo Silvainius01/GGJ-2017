@@ -30,8 +30,6 @@ public class Gyrocoptor : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		Debug.Log ("gyro state: " + state);
-
 		switch(state){
 		case GYRO_STATE.TAKING_OFF:
 			if (transform.position.z <= -flightHeight) {

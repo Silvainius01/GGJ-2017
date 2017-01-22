@@ -571,7 +571,6 @@ public class GraphMaker : MonoBehaviour
 
 	// col + rowlength * row
 	public GraphPoint GetGraphPoint(int x, int y){
-		Debug.Log ("x: " + x + " y: " + y + " index: " + (y + colLength * x));
 		return graphPoints [y + colLength * x];
 	}
 

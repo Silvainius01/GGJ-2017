@@ -135,4 +135,11 @@ public class Unit : MonoBehaviour {
 		path = graph.GetPath (transform.position, pos);
 		navigateGraph = true;
 	}
+
+	protected void MoveToRandomPosition(){
+		path.Clear ();
+		path = graph.GetRandomPathFrom (transform.position);
+		destroyOnPathCompletion = false;
+		navigateGraph = true;
+	}
 }

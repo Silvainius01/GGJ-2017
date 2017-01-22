@@ -17,6 +17,7 @@ public class BasicEnemyUnit : Unit {
 	private float[] temptationValues = new float[(int)EnemyEffect.NONE];
 	private SpecialBuilding targetBuilding = null;
 	private SpecialBuilding lastBuilding = null;
+	private List<SpecialBuilding> visitedBuildings = new List<SpecialBuilding> ();
 
 	// drunk variables
 	[Header("Drunk Variables")]
@@ -116,7 +117,7 @@ public class BasicEnemyUnit : Unit {
 					SpecialBuilding building = graph.GetGraphPoint (i, j).occupyingObj.GetComponent<SpecialBuilding>();
 
 					// skip if just in that building
-					if(building == lastBuilding) continue;
+					if(building == lastBuilding || visitedBuildings.Contains(building)) continue;
 
 					float want = WantsToEnterBuilding (building);
 					//Debug.Log ("checking build: " + building.buildingType + " want: " + want);
@@ -138,6 +139,7 @@ public class BasicEnemyUnit : Unit {
 
 	public void EnterBuilding(SpecialBuilding building){
 		targetBuilding = null;
+		visitedBuildings.Add (building);
 		building.EnterBuilding (this);
 	}
 
@@ -180,15 +182,16 @@ public class BasicEnemyUnit : Unit {
 
 		// go to a random position
 		speedLostFromBeingDrunk = speed * (1.0f - slowPercent);
-		speed = speedLostFromBeingDrunk;
+		speed = speed - speedLostFromBeingDrunk;
 		bonusBuildingWant = enterBuldingPercent;
+		MoveToRandomPosition ();
 	}
 
 	public void RemoveDrunk(){
 		RemoveEffect (EnemyEffect.DRUNK);
 		speed += speedLostFromBeingDrunk;
 		bonusBuildingWant = 0.0f;
-		// TODO move towards queen
+		MoveToQueen();
 	}
 
 	public void Plague(float deathTime){
