@@ -3,6 +3,9 @@ using System.Collections.Generic;
 
 public class GraphMaker : MonoBehaviour
 {
+
+    public static GraphMaker Instance;
+
 	public enum GRID_TYPE{
 		NONE, 
 		EMPTY_BUILDING,
@@ -79,6 +82,10 @@ public class GraphMaker : MonoBehaviour
 
     private void Awake()
     {
+        if(GraphMaker.Instance == null)
+        {
+            Instance = this;
+        }
         // Collect scale of the plane we are operating on.
         gameBoardScale = new Vector2(transform.localScale.x, transform.localScale.z) * 5;
     }
