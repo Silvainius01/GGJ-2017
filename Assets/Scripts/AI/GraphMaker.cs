@@ -403,13 +403,13 @@ public class GraphMaker : MonoBehaviour
     // Misc Public Graph Data
     #region
 
-    public int GetClosestPointTo(Vector2 pos)
+	public int GetClosestPointTo(Vector2 pos, bool searchBlockedNodes = false)
     {
         int cIndex = 0;
         float dist = float.MaxValue;
         foreach (var point in graphPoints)
         {
-            if (point.isBlocked)
+            if (point.isBlocked && !searchBlockedNodes)
                 continue;
             float comp = Mathc.SqrDist(point.pos, pos);
             if (comp < dist)
@@ -571,11 +571,12 @@ public class GraphMaker : MonoBehaviour
 
 	// col + rowlength * row
 	public GraphPoint GetGraphPoint(int x, int y){
-		return graphPoints [y + rowLength * x];
+		Debug.Log ("x: " + x + " y: " + y + " index: " + (y + colLength * x));
+		return graphPoints [y + colLength * x];
 	}
 
-	public GraphPoint GetGraphPoint(Vector2 pos){
-		return graphPoints [GetClosestPointTo (pos)];
+	public GraphPoint GetGraphPoint(Vector2 pos, bool searchBlockedNodes = false){
+		return graphPoints [GetClosestPointTo (pos, searchBlockedNodes)];
 	}
 
 	public void GetGraphPointXYGridCoords(GraphPoint graphPoint, ref int x, ref int y){

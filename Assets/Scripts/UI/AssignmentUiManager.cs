@@ -37,7 +37,7 @@ public class AssignmentUiManager : MonoBehaviour {
 			
 		// create obj and place it on the grid
 		GameObject _spawn = Instantiate (_construction, curTile.pos, Quaternion.identity) as GameObject;
-        My_GraphMaker.SetGridType(My_GraphMaker.GetClosestPointTo(curTile.pos), _spawn, gridType);
+        My_GraphMaker.SetGridType(My_GraphMaker.GetClosestPointTo(curTile.pos, true), _spawn, gridType);
 		Debug.Log ("placing type: " + gridType);
 
         foreach(GameObject _obj in curSpawned)

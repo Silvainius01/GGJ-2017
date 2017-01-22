@@ -119,7 +119,7 @@ public class BasicEnemyUnit : Unit {
 					if(building == lastBuilding) continue;
 
 					float want = WantsToEnterBuilding (building);
-					Debug.Log ("checking build: " + building.buildingType + " want: " + want);
+					//Debug.Log ("checking build: " + building.buildingType + " want: " + want);
 					if (want != 0.0f && want > bestEnterValue) {
 						want = bestEnterValue;
 						buildingToEnter = building;

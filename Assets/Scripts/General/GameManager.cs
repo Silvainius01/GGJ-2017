@@ -125,7 +125,7 @@ public class GameManager : MonoBehaviour {
 
 	public void LivingEnemyWasDestroyed(BasicEnemyUnit enemy){
 		livingEnemies.Remove (enemy);
-		Debug.Log ("death num alive: " + livingEnemies.Count);
+		//Debug.Log ("death num alive: " + livingEnemies.Count);
 		if (livingEnemies.Count == 0 && spawner.spawnQ.Count == 0) {
 			InitState (GameState.BUILD);
 		}

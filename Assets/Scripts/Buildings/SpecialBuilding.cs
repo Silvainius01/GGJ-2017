@@ -25,9 +25,11 @@ public class SpecialBuilding : Building {
 		foreach (KeyValuePair<BasicEnemyUnit, Timer> occupant in occupantTimers) {
 			if (occupant.Value.Update (Time.deltaTime)) {
 				// if timer went off, apply special function and call exit
-				occupant.Key.gameObject.SetActive(true);
-				if (!ApplySpecialEffect (occupant.Key)) {
-					occupant.Key.BuildingExited ();
+				if (occupant.Key != null) {
+					occupant.Key.gameObject.SetActive(true);
+					if (!ApplySpecialEffect (occupant.Key)) {
+						occupant.Key.BuildingExited ();
+					}
 				}
 				removal.Add (occupant.Key);
 			}

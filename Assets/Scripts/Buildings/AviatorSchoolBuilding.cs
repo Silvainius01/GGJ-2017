@@ -29,7 +29,7 @@ public class AviatorSchoolBuilding : SpecialBuilding {
 		// if fat from backery, enemy may leave
 		if (unit.HasEffectActive(BasicEnemyUnit.EnemyEffect.FAT)) {
 			Debug.Log ("fat im leaving");
-			return true;
+			return false;
 		}
 		// otherwise, bye bye
 		else {
