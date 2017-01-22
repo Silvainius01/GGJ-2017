@@ -342,14 +342,8 @@ public class GraphMaker : MonoBehaviour
             foreach (var link in graphPoints[curIndex].connections)
             {
                 dist = link.dist + graphPoints[curIndex].navData.tDist;
-<<<<<<< HEAD
-                if (dist < graphPoints[link.index].navData.tDist)
-=======
                  if (dist < graphPoints[link.index].navData.tDist)
->>>>>>> origin/matt
                     graphPoints[link.index].navData = new GraphPoint.NavData(curIndex, dist);
-                
-
                 if (!foundTarget && !graphPoints[link.index].navData.evaluated)
                     q.Add(link.index);
             }

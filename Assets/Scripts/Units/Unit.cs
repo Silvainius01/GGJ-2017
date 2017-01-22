@@ -6,20 +6,18 @@ public class Unit : MonoBehaviour {
 	private Rigidbody rbody;
 
     [Header("Navigation Options")]
-    GraphMaker graph;
-	public float speed = 10.0f;
-	public float distToStop = 0.1f;
-	public Vector2 movePos;
-    public bool navigateGraph = false;
-    public List<int> path;
-<<<<<<< HEAD
-
-    public bool destroyOnPathCompletion = false;
-
-=======
 	public float initialSpeed = 10.0f;
+	public float distToStop = 0.1f;
+    public bool navigateGraph = false;
+    public bool destroyOnPathCompletion = false;
+	public float speed { get; set; }
+    [Header("Navigation Info")]
+	public Vector2 movePos;
+    public List<int> path;
+    GraphMaker graph;
+
+
 	protected bool stunned = false;
->>>>>>> origin/matt
 
 	// Use this for initialization
 	void Awake ()
@@ -33,11 +31,9 @@ public class Unit : MonoBehaviour {
     // Update is called once per frame
     public virtual void Update()
     {
-<<<<<<< HEAD
-        if (navigateGraph)
-        {
-            if (path.Count <= 0)
-            {
+		if (!stunned) {
+			if (navigateGraph)
+			{
                 if (destroyOnPathCompletion)
                 {
                     Destroy(this.gameObject);
@@ -45,17 +41,8 @@ public class Unit : MonoBehaviour {
                 }
                 else
                     path = graph.GetRandomPathFrom(transform.position);
-            }
 
-            movePos = graph.PointPos(path[0]);
-        }
-=======
-		if (!stunned) {
-			if (navigateGraph)
-			{
-				if (path.Count <= 0)
-					path = graph.GetRandomPathFrom(transform.position);
-				movePos = graph.PointPos(path[0]);
+                movePos = graph.PointPos(path[0]);
 			}
 
 			Vector2 toMoveTarget = (movePos - (Vector2)transform.position);
@@ -70,7 +57,6 @@ public class Unit : MonoBehaviour {
 				rbody.velocity = toMoveTarget.normalized * speed;
 			}
 		}
->>>>>>> origin/matt
 
     }
 		

@@ -55,7 +55,8 @@ public class BasicEnemyUnit : Unit {
 		// check to see if collided with target building
 	}
 
-	public void Slow(float percent){
+	public void Slow(float percent)
+    {
 		AddEffect (EnemyEffect.FAT);
 		speed = speed * percent;
 	}
