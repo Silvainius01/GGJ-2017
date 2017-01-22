@@ -3,10 +3,11 @@ using System.Collections;
 
 public class UnitSelection : MonoBehaviour
 {
-    bool first = true;
-    Vector2 sPos;
-    Vector2 fPos;
-
+    public bool first = true;
+    public Vector2 sPos;
+    public Vector2 fPos;
+    public Texture2D texture;
+    public  Rect rect = new Rect();
 	// Use this for initialization
 	void Start ()
     {
@@ -16,7 +17,7 @@ public class UnitSelection : MonoBehaviour
 	// Update is called once per frame
 	void FixedUpdate ()
     { 
-	    if(Input.GetMouseButtonDown(0))
+	    if(Input.GetMouseButton(0))
         {
             fPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 
@@ -25,8 +26,7 @@ public class UnitSelection : MonoBehaviour
                 sPos = fPos;
                 first = false;
             }
-
-            
+            rect = new Rect(Mathc.GetMidPoint(sPos, fPos), new Vector2(10.0f, 10.0f));
         }
         else if(!first)
         {
@@ -36,6 +36,16 @@ public class UnitSelection : MonoBehaviour
                 if (Mathc.VectorIsBetween(unit.transform.position, sPos, fPos))
                     if (unit.ownedByPlayer)
                         unit.isSelected = true;
+            first = true;
         }
 	}
+
+    private void OnGUI()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            GUI.color = Color.red;
+            GUI.DrawTexture(rect, texture);
+        }
+    }
 }
