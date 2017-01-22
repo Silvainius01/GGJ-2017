@@ -3,7 +3,7 @@ using System.Collections;
 
 public class UnitSelection : MonoBehaviour
 {
-    bool first = false;
+    bool first = true;
     Vector2 sPos;
     Vector2 fPos;
 
