@@ -33,7 +33,7 @@ public class Gyrocoptor : MonoBehaviour {
 	void Update () {
 		switch(state){
 		case GYRO_STATE.TAKING_OFF:
-			if (transform.position.z <= flightHeight) {
+			if (transform.position.z <= -flightHeight) {
 				transform.position = new Vector3(transform.position.x, transform.position.y, -flightHeight);
 				rbody.velocity = new Vector3 (rbody.velocity.x, rbody.velocity.y, 0.0f);
 				state = GYRO_STATE.FLYING;

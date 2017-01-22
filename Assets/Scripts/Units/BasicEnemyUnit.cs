@@ -8,6 +8,7 @@ public class BasicEnemyUnit : Unit {
 		FAT,
 		DRUNK,
 		PLAGUE,
+		DUEL_WINNER,
 		NONE
 	}
 
@@ -20,7 +21,8 @@ public class BasicEnemyUnit : Unit {
 	
 	// Update is called once per frame
 	void Update () {
-	
+		// check to see if new grid point has been entered if moved
+
 	}
 
 	public override void Attack (Unit unit){
@@ -57,6 +59,7 @@ public class BasicEnemyUnit : Unit {
 
 	public void Slow(float percent){
 		AddEffect (EnemyEffect.FAT);
+		speed = speed * percent;
 	}
 
 	public void GetDrunk(float slowPercent, float drunkTime, float enterBuldingPercent){
@@ -68,6 +71,15 @@ public class BasicEnemyUnit : Unit {
 		// add plague componenet
 		Plague plagueComp = gameObject.AddComponent<Plague>();
 		plagueComp.Init (deathTime);
+	}
+
+	public void DuelStarted(){
+		stunned = true;
+	}
+
+	public void DuelEnded(){
+		AddEffect (EnemyEffect.DUEL_WINNER);
+		stunned = false;
 	}
 
 	public void AddEffect(EnemyEffect effect){

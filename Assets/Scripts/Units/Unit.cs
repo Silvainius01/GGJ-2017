@@ -4,23 +4,28 @@ using System.Collections;
 public class Unit : MonoBehaviour {
 
 	private Rigidbody rbody;
-	public float speed = 10.0f;
+	public float initialSpeed = 10.0f;
+	protected float speed = 10.0f;
 	private Vector2 movePos;
 	public float distToStop = 0.1f;
+	protected bool stunned = false;
 
 	// Use this for initialization
 	void Awake () {
 		rbody = GetComponent<Rigidbody> ();
 		movePos = transform.position;
+		speed = initialSpeed;
 	}
 	
 	// Update is called once per frame
 	public virtual void Update () {
-		Vector2 toMoveTarget = (movePos - (Vector2)transform.position);
-		if (toMoveTarget.magnitude <= distToStop) {
-			rbody.velocity = new Vector3 (0.0f, 0.0f, 0.0f);
-		} else {
-			rbody.velocity = toMoveTarget.normalized * speed;
+		if (!stunned) {
+			Vector2 toMoveTarget = (movePos - (Vector2)transform.position);
+			if (toMoveTarget.magnitude <= distToStop) {
+				rbody.velocity = new Vector3 (0.0f, 0.0f, 0.0f);
+			} else {
+				rbody.velocity = toMoveTarget.normalized * speed;
+			}
 		}
 	}
 		
