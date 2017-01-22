@@ -59,6 +59,7 @@ public class GraphMaker : MonoBehaviour
         }
     }
 
+    public bool clearBlocks = false;
     public bool scanGraph = false;
     [Header("Graph Gen Options")]
     public float squareSideSize = 5.0f;
@@ -308,6 +309,7 @@ public class GraphMaker : MonoBehaviour
         var q = new List<int>();
         bool foundTarget = false;
         float dist = float.MaxValue;
+        List<int> links = new List<int>();
 
         startIndex = indexA;
         finalIndex = indexB;
@@ -320,10 +322,19 @@ public class GraphMaker : MonoBehaviour
         graphPoints[indexA].navData.evaluated = true;
         graphPoints[indexB].navData.wasTarget = true;
 
-        foreach (var link in graphPoints[indexA].connections)
+
+        while(links.Count < graphPoints[indexA].connections.Count)
         {
-            graphPoints[link.index].navData = new GraphPoint.NavData(indexA, link.dist);
-            q.Add(link.index);
+            int rand = Random.Range(0, graphPoints[indexA].connections.Count);
+            if (!links.Contains(rand))
+                links.Add(rand);
+        }
+
+        foreach (var index in links)
+        {
+            GraphPoint.ConnectionData t = graphPoints[indexA].connections[index];
+            graphPoints[t.index].navData = new GraphPoint.NavData(indexA, t.dist);
+            q.Add(index);
         }
 
         while (q.Count > 0)
@@ -337,15 +348,26 @@ public class GraphMaker : MonoBehaviour
                 q.Remove(curIndex);
                 continue;
             }
-            
+
             dist = float.MaxValue;
-            foreach (var link in graphPoints[curIndex].connections)
+
+            links.Clear();
+            while (links.Count < graphPoints[curIndex].connections.Count)
             {
-                dist = link.dist + graphPoints[curIndex].navData.tDist;
-                 if (dist < graphPoints[link.index].navData.tDist)
-                    graphPoints[link.index].navData = new GraphPoint.NavData(curIndex, dist);
-                if (!foundTarget && !graphPoints[link.index].navData.evaluated)
-                    q.Add(link.index);
+                int rand = Random.Range(0, graphPoints[curIndex].connections.Count);
+                if (!links.Contains(rand))
+                    links.Add(rand);
+             }
+
+
+            foreach (var index in links)
+            {
+                GraphPoint.ConnectionData t = graphPoints[curIndex].connections[index];
+                dist = t.dist + graphPoints[curIndex].navData.tDist;
+                 if (dist < graphPoints[t.index].navData.tDist)
+                    graphPoints[t.index].navData = new GraphPoint.NavData(curIndex, dist);
+                if (!foundTarget && !graphPoints[t.index].navData.evaluated)
+                    q.Add(t.index);
             }
 
             graphPoints[curIndex].navData.evaluated = true;
@@ -388,7 +410,7 @@ public class GraphMaker : MonoBehaviour
         List<int> retval = new List<int>();
 
         while(graphPoints[indexB].isBlocked)
-            indexB = Random.Range(0, graphPoints.Count - 1); ;
+            indexB = Random.Range(0, graphPoints.Count - 1);
 
         NavigateBetweenAstar(indexA, indexB);
 
@@ -458,7 +480,8 @@ public class GraphMaker : MonoBehaviour
 
     #endregion
 
-	public void Init(){
+	public void Init()
+    {
 		Awake();
 		GeneratePoints();
 		FinalizeConections();
@@ -481,6 +504,15 @@ public class GraphMaker : MonoBehaviour
             scanGraph = true;
             generateBlocks = false;
             GenerateRandomBlocks();
+        }
+
+        if(clearBlocks)
+        {
+            foreach (var point in graphPoints)
+                if (point.isBlocked)
+                    point.isBlocked = false;
+            scanGraph = true;
+            clearBlocks = false;
         }
 
         if (scanGraph)

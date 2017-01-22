@@ -20,6 +20,12 @@ public class Spawner : MonoBehaviour
             spawnQ.Add(u);
     }
 
+    void StartWave()
+    {
+        spawnInterval.Deactivate(true);
+        spawnInterval.Activate();
+    }
+
 
 	// Use this for initialization
 	void Start ()
